@@ -1,0 +1,5 @@
+--require @babel/register
+--require dotenv/config
+--recursive
+--timeout 10000
+--exit

@@ -1,0 +1,23 @@
+{
+  "plugins": [
+    [
+      "babel-plugin-module-resolver",
+      {
+        "alias": {
+          "src": "./src/",
+          "test": "./test/"
+        }
+      }
+    ]
+  ],
+  "presets": [
+    [
+      "@babel/env",
+      {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ]
+  ]
+}
