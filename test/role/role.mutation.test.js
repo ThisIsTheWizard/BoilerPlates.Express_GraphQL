@@ -4,14 +4,16 @@ const findRoleByName = async (name, headers) => {
   const query = `
     query GetRoles {
       getRoles {
-        id
-        name
-        description
+        data {
+          id
+          name
+          description
+        }
       }
     }
   `
   const response = await api.post('/graphql', { query }, headers)
-  return response.data.data?.getRoles?.find((role) => role.name === name)
+  return response.data.data?.getRoles?.data?.find((role) => role.name === name)
 }
 
 describe('Role Mutation Tests', () => {
@@ -55,8 +57,8 @@ describe('Role Mutation Tests', () => {
       if (existing) {
         try {
           const mutation = `
-            mutation DeleteRole($id: ID!) {
-              deleteRole(id: $id) {
+            mutation DeleteRole($entity_id: String!) {
+              deleteRole(entity_id: $entity_id) {
                 success
               }
             }
@@ -65,7 +67,7 @@ describe('Role Mutation Tests', () => {
             '/graphql',
             {
               query: mutation,
-              variables: { id: existing.id }
+              variables: { entity_id: existing.id }
             },
             authHeaders
           )
@@ -181,7 +183,7 @@ describe('Role Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { input: { id: createdRole.id, name: 'moderator', description: 'Updated moderator role' } }
+          variables: { input: { entity_id: createdRole.id, data: { name: 'moderator', description: 'Updated moderator role' } } }
         },
         authHeaders
       )
@@ -203,7 +205,7 @@ describe('Role Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { input: { id: '00000000-0000-0000-0000-000000000000', name: 'admin' } }
+          variables: { input: { entity_id: '00000000-0000-0000-0000-000000000000', data: { name: 'admin' } } }
         },
         authHeaders
       )
@@ -224,7 +226,7 @@ describe('Role Mutation Tests', () => {
       `
       const response = await api.post('/graphql', {
         query: mutation,
-        variables: { input: { id: createdRole.id, name: 'test' } }
+        variables: { input: { entity_id: createdRole.id, data: { name: 'test' } } }
       })
 
       expect(response.status).to.equal(200)
@@ -261,8 +263,8 @@ describe('Role Mutation Tests', () => {
 
     it('deletes a role successfully', async () => {
       const mutation = `
-        mutation DeleteRole($id: ID!) {
-          deleteRole(id: $id) {
+        mutation DeleteRole($entity_id: String!) {
+          deleteRole(entity_id: $entity_id) {
             success
             message
           }
@@ -272,7 +274,7 @@ describe('Role Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { id: createdRole.id }
+          variables: { entity_id: createdRole.id }
         },
         authHeaders
       )
@@ -284,8 +286,8 @@ describe('Role Mutation Tests', () => {
 
     it('returns error when role does not exist', async () => {
       const mutation = `
-        mutation DeleteRole($id: ID!) {
-          deleteRole(id: $id) {
+        mutation DeleteRole($entity_id: String!) {
+          deleteRole(entity_id: $entity_id) {
             success
           }
         }
@@ -294,7 +296,7 @@ describe('Role Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { id: '00000000-0000-0000-0000-000000000000' }
+          variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
         },
         authHeaders
       )
@@ -306,15 +308,15 @@ describe('Role Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation DeleteRole($id: ID!) {
-          deleteRole(id: $id) {
+        mutation DeleteRole($entity_id: String!) {
+          deleteRole(entity_id: $entity_id) {
             success
           }
         }
       `
       const response = await api.post('/graphql', {
         query: mutation,
-        variables: { id: '00000000-0000-0000-0000-000000000000' }
+        variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
       })
 
       expect(response.status).to.equal(200)

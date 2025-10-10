@@ -12,18 +12,27 @@ input CreateRoleInput {
 }
 
 input UpdateRoleInput {
-  id: ID!
+  entity_id: ID!
+  data: CreateRoleInput
+}
+
+input RoleQuery {
   name: String
-  description: String
+  search_keyword: String
+}
+
+type RoleQuerySchema {
+  data: [Role]
+  meta_data: MetaData
 }
 
 extend type Query {
-  getARole(id: ID!): Role @auth(roles: ["admin", "developer"])
-  getRoles: [Role] @auth(roles: ["admin", "developer"])
+  getARole(entity_id: ID!): Role @auth(roles: ["admin", "developer"])
+  getRoles(query: RoleQuery, options: Options): RoleQuerySchema @auth(roles: ["admin", "developer"])
 }
 
 extend type Mutation {
-  createRole(input: CreateRoleInput!): Role! @auth(roles: ["admin", "developer"])
-  updateRole(input: UpdateRoleInput!): Role! @auth(roles: ["admin", "developer"])
-  deleteRole(id: ID!): SuccessResponse! @auth(roles: ["admin", "developer"])
+  createRole(input: CreateRoleInput!): Role @auth(roles: ["admin", "developer"])
+  updateRole(input: UpdateRoleInput!): Role @auth(roles: ["admin", "developer"])
+  deleteRole(entity_id: ID!): Role @auth(roles: ["admin", "developer"])
 }

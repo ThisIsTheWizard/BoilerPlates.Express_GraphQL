@@ -6,14 +6,16 @@ const findRoleByName = async (name, headers) => {
   const query = `
     query GetRoles {
       getRoles {
-        id
-        name
-        description
+        data {
+          id
+          name
+          description
+        }
       }
     }
   `
   const response = await api.post('/graphql', { query }, headers)
-  return response.data.data?.getRoles?.find((role) => role.name === name)
+  return response.data.data?.getRoles?.data?.find((role) => role.name === name)
 }
 
 describe('Role-User Query Tests', () => {
@@ -115,14 +117,16 @@ describe('Role-User Query Tests', () => {
       const query = `
         query GetRoleUsers {
           getRoleUsers {
-            id
-            role_id
-            user_id
-            role {
-              name
-            }
-            user {
-              email
+            data {
+              id
+              role_id
+              user_id
+              role {
+                name
+              }
+              user {
+                email
+              }
             }
           }
         }
@@ -130,16 +134,18 @@ describe('Role-User Query Tests', () => {
       const response = await api.post('/graphql', { query }, authHeaders)
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.getRoleUsers).to.be.an('array')
+      expect(response.data.data.getRoleUsers.data).to.be.an('array')
     })
 
     it('returns error when token is missing', async () => {
       const query = `
         query GetRoleUsers {
           getRoleUsers {
-            id
-            role_id
-            user_id
+            data {
+              id
+              role_id
+              user_id
+            }
           }
         }
       `
@@ -154,8 +160,8 @@ describe('Role-User Query Tests', () => {
   describe('getARoleUser query', () => {
     it('returns a single role user when it exists', async () => {
       const query = `
-        query GetARoleUser($id: ID!) {
-          getARoleUser(id: $id) {
+        query GetARoleUser($entity_id: String!) {
+          getARoleUser(entity_id: $entity_id) {
             id
             role_id
             user_id
@@ -166,7 +172,7 @@ describe('Role-User Query Tests', () => {
         '/graphql',
         {
           query,
-          variables: { id: roleUserId }
+          variables: { entity_id: roleUserId }
         },
         authHeaders
       )
@@ -177,8 +183,8 @@ describe('Role-User Query Tests', () => {
 
     it('returns error for non-existent role user', async () => {
       const query = `
-        query GetARoleUser($id: ID!) {
-          getARoleUser(id: $id) {
+        query GetARoleUser($entity_id: String!) {
+          getARoleUser(entity_id: $entity_id) {
             id
             role_id
             user_id
@@ -189,7 +195,7 @@ describe('Role-User Query Tests', () => {
         '/graphql',
         {
           query,
-          variables: { id: '00000000-0000-0000-0000-000000000000' }
+          variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
         },
         authHeaders
       )

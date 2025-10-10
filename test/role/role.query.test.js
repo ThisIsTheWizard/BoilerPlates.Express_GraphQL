@@ -18,7 +18,7 @@ describe('Role Query Tests', () => {
       }
     `
     const response = await api.post('/graphql', { query }, authHeaders)
-    anyRole = response.data.data.getRoles[0]
+    anyRole = response.data.data.getRoles.data[0]
   })
 
   describe('getRoles query', () => {
@@ -26,24 +26,28 @@ describe('Role Query Tests', () => {
       const query = `
         query GetRoles {
           getRoles {
-            id
-            name
-            description
+            data {
+              id
+              name
+              description
+            }
           }
         }
       `
       const response = await api.post('/graphql', { query }, authHeaders)
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.getRoles).to.be.an('array')
+      expect(response.data.data.getRoles.data).to.be.an('array')
     })
 
     it('returns error when token is missing', async () => {
       const query = `
         query GetRoles {
           getRoles {
-            id
-            name
+            data {
+              id
+              name
+            }
           }
         }
       `
@@ -58,8 +62,8 @@ describe('Role Query Tests', () => {
   describe('getARole query', () => {
     it('returns a single role when it exists', async () => {
       const query = `
-        query GetARole($id: ID!) {
-          getARole(id: $id) {
+        query GetARole($entity_id: String!) {
+          getARole(entity_id: $entity_id) {
             id
             name
             description
@@ -70,7 +74,7 @@ describe('Role Query Tests', () => {
         '/graphql',
         {
           query,
-          variables: { id: anyRole.id }
+          variables: { entity_id: anyRole.id }
         },
         authHeaders
       )
@@ -81,8 +85,8 @@ describe('Role Query Tests', () => {
 
     it('returns error for non-existent role', async () => {
       const query = `
-        query GetARole($id: ID!) {
-          getARole(id: $id) {
+        query GetARole($entity_id: String!) {
+          getARole(entity_id: $entity_id) {
             id
             name
           }
@@ -92,7 +96,7 @@ describe('Role Query Tests', () => {
         '/graphql',
         {
           query,
-          variables: { id: '00000000-0000-0000-0000-000000000000' }
+          variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
         },
         authHeaders
       )

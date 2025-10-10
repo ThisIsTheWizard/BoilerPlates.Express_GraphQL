@@ -15,8 +15,8 @@ describe('User Mutation Tests', () => {
     if (createdUserId) {
       try {
         const mutation = `
-          mutation DeleteUser($id: ID!) {
-            deleteUser(id: $id) {
+          mutation DeleteUser($entity_id: String!) {
+            deleteUser(entity_id: $entity_id) {
               success
             }
           }
@@ -25,7 +25,7 @@ describe('User Mutation Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { id: createdUserId }
+            variables: { entity_id: createdUserId }
           },
           adminHeaders
         )
@@ -143,10 +143,12 @@ describe('User Mutation Tests', () => {
           query: mutation,
           variables: {
             input: {
-              id: createdUserId,
-              first_name: 'Updated',
-              last_name: 'Name',
-              status: 'active'
+              entity_id: createdUserId,
+              data: {
+                first_name: 'Updated',
+                last_name: 'Name',
+                status: 'active'
+              }
             }
           }
         },
@@ -172,8 +174,8 @@ describe('User Mutation Tests', () => {
           query: mutation,
           variables: {
             input: {
-              id: '00000000-0000-0000-0000-000000000000',
-              first_name: 'Test'
+              entity_id: '00000000-0000-0000-0000-000000000000',
+              data: { first_name: 'Test' }
             }
           }
         },
@@ -198,8 +200,8 @@ describe('User Mutation Tests', () => {
         query: mutation,
         variables: {
           input: {
-            id: createdUserId,
-            first_name: 'Test'
+            entity_id: createdUserId,
+            data: { first_name: 'Test' }
           }
         }
       })
@@ -213,8 +215,8 @@ describe('User Mutation Tests', () => {
   describe('deleteUser mutation', () => {
     it('deletes a user successfully', async () => {
       const mutation = `
-        mutation DeleteUser($id: ID!) {
-          deleteUser(id: $id) {
+        mutation DeleteUser($entity_id: String!) {
+          deleteUser(entity_id: $entity_id) {
             success
             message
           }
@@ -224,7 +226,7 @@ describe('User Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { id: createdUserId }
+          variables: { entity_id: createdUserId }
         },
         adminHeaders
       )
@@ -236,8 +238,8 @@ describe('User Mutation Tests', () => {
 
     it('returns error for non-existent user', async () => {
       const mutation = `
-        mutation DeleteUser($id: ID!) {
-          deleteUser(id: $id) {
+        mutation DeleteUser($entity_id: String!) {
+          deleteUser(entity_id: $entity_id) {
             success
           }
         }
@@ -246,7 +248,7 @@ describe('User Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { id: '00000000-0000-0000-0000-000000000000' }
+          variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
         },
         adminHeaders
       )
@@ -258,15 +260,15 @@ describe('User Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation DeleteUser($id: ID!) {
-          deleteUser(id: $id) {
+        mutation DeleteUser($entity_id: String!) {
+          deleteUser(entity_id: $entity_id) {
             success
           }
         }
       `
       const response = await api.post('/graphql', {
         query: mutation,
-        variables: { id: '00000000-0000-0000-0000-000000000000' }
+        variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
       })
 
       expect(response.status).to.equal(200)

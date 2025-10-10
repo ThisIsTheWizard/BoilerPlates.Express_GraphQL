@@ -42,12 +42,12 @@ export const prepareRolePermissionQuery = (params) => {
   return query
 }
 
-export const getARolePermissionForQuery = async (params) => {
-  commonHelper.validateProps([{ field: 'entity_id', required: true, type: 'string' }], params)
+export const getARolePermissionForQuery = async (query) => {
+  commonHelper.validateRequiredProps(['entity_id'], query)
 
   const rolePermission = await getARolePermission({
     include: [{ association: 'permission' }, { association: 'role' }],
-    where: { id: params?.entity_id }
+    where: { id: query.entity_id }
   })
   if (!rolePermission?.id) {
     throw new CustomError(404, 'ROLE_PERMISSION_DOES_NOT_EXIST')
@@ -56,10 +56,11 @@ export const getARolePermissionForQuery = async (params) => {
   return rolePermission
 }
 
-export const getRolePermissionsForQuery = async (params, options) => {
+export const getRolePermissionsForQuery = async (params) => {
+  const { options, query } = params || {}
   const { limit, offset, order } = options || {}
 
-  const where = prepareRolePermissionQuery(params)
+  const where = prepareRolePermissionQuery(query)
   const data = await getRolePermissions({
     include: [{ association: 'permission' }, { association: 'role' }],
     limit,

@@ -1,5 +1,3 @@
-directive @auth(permission: String, roles: [String!]!) on FIELD_DEFINITION
-
 type AuthPayload {
   access_token: String
   refresh_token: String

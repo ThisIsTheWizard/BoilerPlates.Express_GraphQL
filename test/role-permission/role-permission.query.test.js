@@ -4,28 +4,32 @@ const findRoleByName = async (name, headers) => {
   const query = `
     query GetRoles {
       getRoles {
-        id
-        name
-        description
+        data {
+          id
+          name
+          description
+        }
       }
     }
   `
   const response = await api.post('/graphql', { query }, headers)
-  return response.data.data?.getRoles?.find((role) => role.name === name)
+  return response.data.data?.getRoles?.data?.find((role) => role.name === name)
 }
 
 const findPermissionByName = async (name, headers) => {
   const query = `
     query GetPermissions {
       getPermissions {
-        id
-        name
-        description
+        data {
+          id
+          name
+          description
+        }
       }
     }
   `
   const response = await api.post('/graphql', { query }, headers)
-  return response.data.data?.getPermissions?.find((permission) => permission.name === name)
+  return response.data.data?.getPermissions?.data?.find((permission) => permission.name === name)
 }
 
 describe('Role-Permission Query Tests', () => {
@@ -134,14 +138,16 @@ describe('Role-Permission Query Tests', () => {
       const query = `
         query GetRolePermissions {
           getRolePermissions {
-            id
-            role_id
-            permission_id
-            role {
-              name
-            }
-            permission {
-              name
+            data {
+              id
+              role_id
+              permission_id
+              role {
+                name
+              }
+              permission {
+                name
+              }
             }
           }
         }
@@ -149,16 +155,18 @@ describe('Role-Permission Query Tests', () => {
       const response = await api.post('/graphql', { query }, authHeaders)
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.getRolePermissions).to.be.an('array')
+      expect(response.data.data.getRolePermissions.data).to.be.an('array')
     })
 
     it('returns error when token is missing', async () => {
       const query = `
         query GetRolePermissions {
           getRolePermissions {
-            id
-            role_id
-            permission_id
+            data {
+              id
+              role_id
+              permission_id
+            }
           }
         }
       `
@@ -173,8 +181,8 @@ describe('Role-Permission Query Tests', () => {
   describe('getARolePermission query', () => {
     it('returns a single role permission when it exists', async () => {
       const query = `
-        query GetARolePermission($id: ID!) {
-          getARolePermission(id: $id) {
+        query GetARolePermission($entity_id: String!) {
+          getARolePermission(entity_id: $entity_id) {
             id
             role_id
             permission_id
@@ -185,7 +193,7 @@ describe('Role-Permission Query Tests', () => {
         '/graphql',
         {
           query,
-          variables: { id: rolePermissionId }
+          variables: { entity_id: rolePermissionId }
         },
         authHeaders
       )
@@ -198,8 +206,8 @@ describe('Role-Permission Query Tests', () => {
 
     it('returns error for non-existent role permission', async () => {
       const query = `
-        query GetARolePermission($id: ID!) {
-          getARolePermission(id: $id) {
+        query GetARolePermission($entity_id: String!) {
+          getARolePermission(entity_id: $entity_id) {
             id
             role_id
             permission_id
@@ -210,7 +218,7 @@ describe('Role-Permission Query Tests', () => {
         '/graphql',
         {
           query,
-          variables: { id: '00000000-0000-0000-0000-000000000000' }
+          variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
         },
         authHeaders
       )

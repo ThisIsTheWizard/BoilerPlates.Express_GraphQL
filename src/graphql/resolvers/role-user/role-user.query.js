@@ -1,7 +1,7 @@
-import { roleUserHelper } from 'src/modules/helpers'
+import { commonHelper, roleUserHelper } from 'src/modules/helpers'
 
 export default {
-  getRoleUsers: async () => roleUserHelper.getRoleUsers({}),
-  getARoleUser: async (_, { id }) => roleUserHelper.getARoleUserForQuery({ entity_id: id }),
-  getUserRoles: async (_, { user_id }) => roleUserHelper.getRoleUsers({ where: { user_id } })
+  getARoleUser: async (parent, args) => roleUserHelper.getARoleUserForQuery(args),
+  getRoleUsers: async (parent, args, context) =>
+    roleUserHelper.getRoleUsersForQuery(commonHelper.prepareRequestForQuery(args, context))
 }

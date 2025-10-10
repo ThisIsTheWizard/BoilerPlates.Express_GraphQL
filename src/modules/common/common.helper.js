@@ -7,23 +7,17 @@ import {} from 'src/modules/helpers'
 // Utils
 import { CustomError } from 'src/utils/error'
 
-export const getCommonOptions = () => ({ limit: 50, offset: 0, order: [['created_at', 'desc']] })
-
 export const getFirstLetterUpperCase = (str) => {
   if (!size(str)) return ''
 
   return str?.charAt?.(0)?.toUpperCase?.() + str?.slice?.(1)
 }
 
-export const getOptionsFromQuery = (query = {}) => {
-  const options = { limit: 50, offset: 0, order: [['created_at', 'desc']] }
-  if (query?.limit) options.limit = Number(query.limit)
-  if (query?.offset) options.offset = Number(query.offset)
-  if (size(query?.order)) {
-    options.order = JSON.parse(query.order)
-  }
+export const prepareRequestForQuery = (params, context) => {
+  const { options, query } = params || {}
+  const { limit = 50, offset = 0, order = [['created_at', 'desc']] } = options || {}
 
-  return options
+  return { options: { limit, offset, order }, query, user: context?.user || {} }
 }
 
 export const getRandomNumber = (length) => {

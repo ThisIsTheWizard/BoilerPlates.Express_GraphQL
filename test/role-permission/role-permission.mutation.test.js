@@ -4,28 +4,32 @@ const findRoleByName = async (name, headers) => {
   const query = `
     query GetRoles {
       getRoles {
-        id
-        name
-        description
+        data {
+          id
+          name
+          description
+        }
       }
     }
   `
   const response = await api.post('/graphql', { query }, headers)
-  return response.data.data?.getRoles?.find((role) => role.name === name)
+  return response.data.data?.getRoles?.data?.find((role) => role.name === name)
 }
 
 const findPermissionByName = async (name, headers) => {
   const query = `
     query GetPermissions {
       getPermissions {
-        id
-        name
-        description
+        data {
+          id
+          name
+          description
+        }
       }
     }
   `
   const response = await api.post('/graphql', { query }, headers)
-  return response.data.data?.getPermissions?.find((permission) => permission.name === name)
+  return response.data.data?.getPermissions?.data?.find((permission) => permission.name === name)
 }
 
 describe('Role-Permission Mutation Tests', () => {
@@ -70,8 +74,8 @@ describe('Role-Permission Mutation Tests', () => {
     if (rolePermissionId) {
       try {
         const mutation = `
-          mutation RemovePermission($id: ID!) {
-            removePermission(id: $id) {
+          mutation RemovePermission($entity_id: String!) {
+            removePermission(entity_id: $entity_id) {
               success
             }
           }
@@ -80,7 +84,7 @@ describe('Role-Permission Mutation Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { id: rolePermissionId }
+            variables: { entity_id: rolePermissionId }
           },
           authHeaders
         )
@@ -92,8 +96,8 @@ describe('Role-Permission Mutation Tests', () => {
     if (permissionCreatedForTest && permission?.id) {
       try {
         const mutation = `
-          mutation DeletePermission($id: ID!) {
-            deletePermission(id: $id) {
+          mutation DeletePermission($entity_id: String!) {
+            deletePermission(entity_id: $entity_id) {
               success
             }
           }
@@ -102,7 +106,7 @@ describe('Role-Permission Mutation Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { id: permission.id }
+            variables: { entity_id: permission.id }
           },
           authHeaders
         )
@@ -127,7 +131,7 @@ describe('Role-Permission Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { input: { permission_id: permission.id, role_id: roleId } }
+          variables: { input: { permission_id: permission.id, role_id: roleId, can_do_the_action: true } }
         },
         authHeaders
       )
@@ -151,7 +155,7 @@ describe('Role-Permission Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { input: { role_id: roleId } }
+          variables: { input: { role_id: roleId, can_do_the_action: true } }
         },
         authHeaders
       )
@@ -172,7 +176,7 @@ describe('Role-Permission Mutation Tests', () => {
       `
       const response = await api.post('/graphql', {
         query: mutation,
-        variables: { input: { permission_id: permission.id, role_id: roleId } }
+        variables: { input: { permission_id: permission.id, role_id: roleId, can_do_the_action: true } }
       })
 
       expect(response.status).to.equal(200)
@@ -197,7 +201,7 @@ describe('Role-Permission Mutation Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { input: { permission_id: permission.id, role_id: roleId } }
+            variables: { input: { permission_id: permission.id, role_id: roleId, can_do_the_action: true } }
           },
           authHeaders
         )
@@ -208,8 +212,8 @@ describe('Role-Permission Mutation Tests', () => {
     it('deletes a role permission successfully', async () => {
       const targetId = rolePermissionId
       const mutation = `
-        mutation RemovePermission($id: ID!) {
-          removePermission(id: $id) {
+        mutation RemovePermission($entity_id: String!) {
+          removePermission(entity_id: $entity_id) {
             success
             message
           }
@@ -219,7 +223,7 @@ describe('Role-Permission Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { id: targetId }
+          variables: { entity_id: targetId }
         },
         authHeaders
       )
@@ -231,8 +235,8 @@ describe('Role-Permission Mutation Tests', () => {
 
     it('returns error when role permission does not exist', async () => {
       const mutation = `
-        mutation RemovePermission($id: ID!) {
-          removePermission(id: $id) {
+        mutation RemovePermission($entity_id: String!) {
+          removePermission(entity_id: $entity_id) {
             success
           }
         }
@@ -241,7 +245,7 @@ describe('Role-Permission Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { id: '00000000-0000-0000-0000-000000000000' }
+          variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
         },
         authHeaders
       )
@@ -253,15 +257,15 @@ describe('Role-Permission Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation RemovePermission($id: ID!) {
-          removePermission(id: $id) {
+        mutation RemovePermission($entity_id: String!) {
+          removePermission(entity_id: $entity_id) {
             success
           }
         }
       `
       const response = await api.post('/graphql', {
         query: mutation,
-        variables: { id: '00000000-0000-0000-0000-000000000000' }
+        variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
       })
 
       expect(response.status).to.equal(200)

@@ -61,7 +61,8 @@ export const getAPermissionForQuery = async (query) => {
   return permission
 }
 
-export const getPermissionsForQuery = async (query, options) => {
+export const getPermissionsForQuery = async (params) => {
+  const { options, query } = params || {}
   const { limit, offset, order } = options || {}
 
   const where = preparePermissionQuery(query)

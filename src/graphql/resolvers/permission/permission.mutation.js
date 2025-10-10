@@ -2,22 +2,16 @@ import { permissionService } from 'src/modules/services'
 import { useTransaction } from 'src/utils/database'
 
 export default {
-  createPermission: async (_, { input }, { user }) =>
+  createPermission: async (parent, args, context) =>
     await useTransaction(async (transaction) =>
-      permissionService.createAPermissionForMutation(input, user, transaction)
+      permissionService.createAPermissionForMutation(args?.input, context?.user, transaction)
     ),
 
-  updatePermission: async (_, { input }) => {
-    const { id, ...data } = input
-    return await useTransaction(async (transaction) =>
-      permissionService.updateAPermissionForMutation({ entity_id: id, data }, transaction)
-    )
-  },
-
-  deletePermission: async (_, { id }) => {
+  updatePermission: async (parent, args) =>
     await useTransaction(async (transaction) =>
-      permissionService.deleteAPermissionForMutation({ entity_id: id }, transaction)
-    )
-    return { success: true, message: 'SUCCESS' }
-  }
+      permissionService.updateAPermissionForMutation(args?.input, transaction)
+    ),
+
+  deletePermission: async (parent, args) =>
+    await useTransaction(async (transaction) => permissionService.deleteAPermissionForMutation(args, transaction))
 }

@@ -8,15 +8,36 @@ type User {
   updated_at: String
 }
 
-# This is the root query type. All queries must use extend type Query
-type Query {
-  getUsers: [User] @auth(roles: ["admin", "developer"])
-  getAUser(id: ID!): User @auth(roles: ["admin", "developer"])
+input CreateUserInput {
+  email: String!
+  first_name: String!
+  last_name: String!
+  password: String!
 }
 
-# This is the root mutation type. All queries must use extend type Mutation
-type Mutation {
-  createUser(input: RegisterInput!): User! @auth(roles: ["admin", "developer"])
-  updateUser(input: UpdateUserInput!): User! @auth(roles: ["admin", "developer"])
-  deleteUser(id: ID!): SuccessResponse! @auth(roles: ["admin", "developer"])
+input UpdateUserInput {
+  entity_id: ID!
+  data: CreateUserInput
+}
+
+input UserQuery {
+  email: String
+  status: String
+  search_keyword: String
+}
+
+type UserQuerySchema {
+  data: [User]
+  meta_data: MetaData
+}
+
+extend type Query {
+  getAUser(entity_id: ID!): User @auth(roles: ["admin", "developer"])
+  getUsers(query: UserQuery, options: Options): UserQuerySchema @auth(roles: ["admin", "developer"])
+}
+
+extend type Mutation {
+  createUser(input: CreateUserInput!): User @auth(roles: ["admin", "developer"])
+  updateUser(input: UpdateUserInput!): User @auth(roles: ["admin", "developer"])
+  deleteUser(entity_id: ID!): User @auth(roles: ["admin", "developer"])
 }

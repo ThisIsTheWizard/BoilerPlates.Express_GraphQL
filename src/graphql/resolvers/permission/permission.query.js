@@ -1,6 +1,7 @@
-import { permissionHelper } from 'src/modules/helpers'
+import { commonHelper, permissionHelper } from 'src/modules/helpers'
 
 export default {
-  getPermissions: async () => permissionHelper.getPermissions({}),
-  getAPermission: async (_, { id }) => permissionHelper.getAPermissionForQuery({ entity_id: id })
+  getAPermission: async (parent, args) => permissionHelper.getAPermissionForQuery(args),
+  getPermissions: async (parent, args, context) =>
+    permissionHelper.getPermissionsForQuery(commonHelper.prepareRequestForQuery(args, context))
 }

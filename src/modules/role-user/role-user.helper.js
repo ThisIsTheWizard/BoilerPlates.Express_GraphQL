@@ -37,10 +37,10 @@ export const prepareRoleUserQuery = (params) => {
   return query
 }
 
-export const getARoleUserForQuery = async (params) => {
-  commonHelper.validateProps([{ field: 'entity_id', required: true, type: 'string' }], params)
+export const getARoleUserForQuery = async (query) => {
+  commonHelper.validateRequiredProps(['entity_id'], query)
 
-  const roleUser = await getARoleUser({ where: { id: params?.entity_id } })
+  const roleUser = await getARoleUser({ where: { id: query.entity_id } })
   if (!roleUser?.id) {
     throw new CustomError(404, 'ROLE_USER_DOES_NOT_EXIST')
   }
@@ -48,10 +48,11 @@ export const getARoleUserForQuery = async (params) => {
   return roleUser
 }
 
-export const getRoleUsersForQuery = async (params, options) => {
+export const getRoleUsersForQuery = async (params) => {
+  const { options, query } = params || {}
   const { limit, offset, order } = options || {}
 
-  const where = prepareRoleUserQuery(params)
+  const where = prepareRoleUserQuery(query)
   const data = await getRoleUsers({
     include: [{ association: 'role' }, { association: 'user' }],
     limit,

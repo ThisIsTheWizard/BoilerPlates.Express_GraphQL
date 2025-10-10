@@ -3,88 +3,95 @@ import { useTransaction } from 'src/utils/database'
 
 export default {
   // Authentication
-  register: async (_, { input }) =>
-    await useTransaction(async (transaction) => authService.registerUser(input, transaction)),
+  register: async (parent, args) =>
+    await useTransaction(async (transaction) => authService.registerUser(args?.input, transaction)),
 
-  verifyEmail: async (_, { input }) =>
-    await useTransaction(async (transaction) => authService.verifyUserEmail(input, transaction)),
+  verifyEmail: async (parent, args) =>
+    await useTransaction(async (transaction) => authService.verifyUserEmail(args?.input, transaction)),
 
-  resendVerificationEmail: async (_, { email }) => {
-    await useTransaction(async (transaction) => authService.resendUserVerificationEmail({ email }, transaction))
+  resendVerificationEmail: async (parent, args) => {
+    await useTransaction(async (transaction) =>
+      authService.resendUserVerificationEmail(args?.input, transaction)
+    )
     return { success: true, message: 'SUCCESS' }
   },
 
-  login: async (_, { input }) => await useTransaction(async (transaction) => authService.loginUser(input, transaction)),
+  login: async (parent, args) =>
+    await useTransaction(async (transaction) => authService.loginUser(args?.input, transaction)),
 
-  refreshToken: async (_, { input }) =>
-    await useTransaction(async (transaction) => authService.refreshTokensForUser(input, transaction)),
+  refreshToken: async (parent, args) =>
+    await useTransaction(async (transaction) => authService.refreshTokensForUser(args?.input, transaction)),
 
-  logout: async (_, __, { token }) => {
-    await useTransaction(async (transaction) => authService.logoutAUser({ token, type: 'access_token' }, transaction))
+  logout: async (parent, args, context) => {
+    await useTransaction(async (transaction) =>
+      authService.logoutAUser({ ...args?.input, ...context }, transaction)
+    )
     return { success: true, message: 'LOGGED_OUT' }
   },
 
   // Password Management
-  changePassword: async (_, { input }, { user }) => {
+  changePassword: async (parent, args, context) => {
     await useTransaction(async (transaction) =>
-      authService.changePasswordByUser({ ...input, user_id: user.user_id }, transaction)
+      authService.changePasswordByUser({ ...args?.input, ...context?.user }, transaction)
     )
     return { success: true, message: 'SUCCESS' }
   },
 
-  forgotPassword: async (_, { input }) => {
-    await useTransaction(async (transaction) => authService.forgotPassword(input, transaction))
+  forgotPassword: async (parent, args) => {
+    await useTransaction(async (transaction) => authService.forgotPassword(args?.input, transaction))
     return { success: true, message: 'SUCCESS' }
   },
 
-  retryForgotPassword: async (_, { input }) => {
-    await useTransaction(async (transaction) => authService.retryForgotPassword(input, transaction))
+  retryForgotPassword: async (parent, args) => {
+    await useTransaction(async (transaction) => authService.retryForgotPassword(args?.input, transaction))
     return { success: true, message: 'SUCCESS' }
   },
 
-  verifyForgotPassword: async (_, { input }) => {
-    await useTransaction(async (transaction) => authService.verifyForgotPassword(input, transaction))
+  verifyForgotPassword: async (parent, args) => {
+    await useTransaction(async (transaction) => authService.verifyForgotPassword(args?.input, transaction))
     return { success: true, message: 'SUCCESS' }
   },
 
-  verifyForgotPasswordCode: async (_, { email, token }) => {
+  verifyForgotPasswordCode: async (parent, args) => {
     const result = await useTransaction(async (transaction) =>
-      authService.verifyForgotPasswordCode({ email, token }, transaction)
+      authService.verifyForgotPasswordCode(args?.input, transaction)
     )
     return { success: result.success, message: result.message }
   },
 
-  verifyUserPassword: async (_, { password }, { user }) => {
+  verifyUserPassword: async (parent, args, context) => {
     const result = await useTransaction(async (transaction) =>
-      authService.verifyUserPassword({ password, user_id: user.user_id }, transaction)
+      authService.verifyUserPassword({ ...args?.input, ...context?.user }, transaction)
     )
     return { success: result.success, message: result.message }
   },
 
   // Email Management
-  changeEmail: async (_, { email }, { user }) => {
+  changeEmail: async (parent, args, context) => {
     await useTransaction(async (transaction) =>
-      authService.changeEmailByUser({ new_email: email, user_id: user.user_id }, transaction)
+      authService.changeEmailByUser({ ...args?.input, ...context?.user }, transaction)
     )
     return { success: true, message: 'SUCCESS' }
   },
 
-  cancelChangeEmail: async (_, { email }) => {
-    await useTransaction(async (transaction) => authService.cancelChangeEmailByUser({ email }, transaction))
+  cancelChangeEmail: async (parent, args) => {
+    await useTransaction(async (transaction) => authService.cancelChangeEmailByUser(args?.input, transaction))
     return { success: true, message: 'SUCCESS' }
   },
 
-  verifyChangeEmail: async (_, { token }, { user }) =>
+  verifyChangeEmail: async (parent, args, context) =>
     await useTransaction(async (transaction) =>
-      authService.verifyChangeEmailByUser({ token, user_id: user.user_id }, transaction)
+      authService.verifyChangeEmailByUser({ ...args?.input, ...context?.user }, transaction)
     ),
 
   // Admin operations
-  setUserEmailByAdmin: async (_, { user_id, new_email }) =>
-    await useTransaction(async (transaction) => authService.setUserEmailByAdmin({ user_id, new_email }, transaction)),
+  setUserEmailByAdmin: async (parent, args) =>
+    await useTransaction(async (transaction) => authService.setUserEmailByAdmin(args?.input, transaction)),
 
-  setUserPasswordByAdmin: async (_, { user_id, password }) => {
-    await useTransaction(async (transaction) => authService.changePasswordByAdmin({ user_id, password }, transaction))
+  setUserPasswordByAdmin: async (parent, args) => {
+    await useTransaction(async (transaction) =>
+      authService.changePasswordByAdmin(args?.input, transaction)
+    )
     return { success: true, message: 'SUCCESS' }
   }
 }

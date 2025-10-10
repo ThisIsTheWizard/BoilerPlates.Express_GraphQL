@@ -1,25 +1,42 @@
 type RolePermission {
-  id: ID
+  id: ID!
   role_id: String
   permission_id: String
-  role: Role
-  permission: Permission
+  can_do_the_action: Boolean
   created_at: String
   updated_at: String
 }
 
-input AssignPermissionInput {
-  role_id: ID!
-  permission_id: ID!
+input CreateRolePermissionInput {
+  role_id: String!
+  permission_id: String!
+  can_do_the_action: Boolean!
+}
+
+input UpdateRolePermissionInput {
+  entity_id: ID!
+  data: CreateRolePermissionInput
+}
+
+input RolePermissionQuery {
+  role_id: String
+  permission_id: String
+  can_do_the_action: Boolean
+}
+
+type RolePermissionQuerySchema {
+  data: [RolePermission]
+  meta_data: MetaData
 }
 
 extend type Query {
-  getRolePermissions: [RolePermission] @auth(roles: ["admin", "developer"])
-  getARolePermission(id: ID!): RolePermission @auth(roles: ["admin", "developer"])
-  getRolePermissionsByRole(role_id: ID!): [RolePermission] @auth(roles: ["admin", "developer"])
+  getARolePermission(entity_id: ID!): RolePermission @auth(roles: ["admin", "developer"])
+  getRolePermissions(query: RolePermissionQuery, options: Options): RolePermissionQuerySchema
+    @auth(roles: ["admin", "developer"])
 }
 
 extend type Mutation {
-  assignPermission(input: AssignPermissionInput!): RolePermission! @auth(roles: ["admin", "developer"])
-  removePermission(id: ID!): SuccessResponse! @auth(roles: ["admin", "developer"])
+  assignPermission(input: CreateRolePermissionInput!): RolePermission @auth(roles: ["admin", "developer"])
+  updateRolePermission(input: UpdateRolePermissionInput!): RolePermission @auth(roles: ["admin", "developer"])
+  removePermission(entity_id: ID!): RolePermission @auth(roles: ["admin", "developer"])
 }

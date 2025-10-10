@@ -1,7 +1,9 @@
-import { rolePermissionHelper } from 'src/modules/helpers'
+import { commonHelper, rolePermissionHelper } from 'src/modules/helpers'
 
 export default {
-  getRolePermissions: async () => rolePermissionHelper.getRolePermissions({}),
-  getARolePermission: async (_, { id }) => rolePermissionHelper.getARolePermissionForQuery({ entity_id: id }),
-  getRolePermissionsByRole: async (_, { role_id }) => rolePermissionHelper.getRolePermissions({ where: { role_id } })
+  getARolePermission: async (parent, args) => rolePermissionHelper.getARolePermissionForQuery(args),
+  getRolePermissions: async (parent, args, context) =>
+    rolePermissionHelper.getRolePermissionsForQuery(
+      commonHelper.prepareRequestForQuery(args, context)
+    )
 }

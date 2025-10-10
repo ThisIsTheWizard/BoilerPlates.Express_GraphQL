@@ -2,16 +2,12 @@ import { authService, userService } from 'src/modules/services'
 import { useTransaction } from 'src/utils/database'
 
 export default {
-  createUser: async (_, { input }) =>
-    await useTransaction(async (transaction) => authService.registerUser(input, transaction)),
+  createUser: async (parent, args, context) =>
+    await useTransaction(async (transaction) => authService.registerUser(args?.input, context?.user, transaction)),
 
-  updateUser: async (_, { input }) => {
-    const { id, ...data } = input
-    return await useTransaction(async (transaction) => userService.updateAUser({ where: { id } }, data, transaction))
-  },
+  updateUser: async (parent, args) =>
+    await useTransaction(async (transaction) => userService.updateAUserForMutation(args?.input, transaction)),
 
-  deleteUser: async (_, { id }) => {
-    await useTransaction(async (transaction) => userService.deleteAUser({ where: { id } }, transaction))
-    return { success: true, message: 'SUCCESS' }
-  }
+  deleteUser: async (parent, args) =>
+    await useTransaction(async (transaction) => userService.deleteAUserForMutation(args, transaction))
 }

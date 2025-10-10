@@ -2,13 +2,18 @@ import { rolePermissionService } from 'src/modules/services'
 import { useTransaction } from 'src/utils/database'
 
 export default {
-  assignPermission: async (_, { input }) =>
-    await useTransaction(async (transaction) => rolePermissionService.createARolePermission(input, {}, transaction)),
-
-  removePermission: async (_, { id }) => {
+  assignPermission: async (parent, args, context) =>
     await useTransaction(async (transaction) =>
-      rolePermissionService.deleteARolePermission({ where: { id } }, transaction)
+      rolePermissionService.createARolePermissionForMutation(args?.input, context?.user, transaction)
+    ),
+
+  updateRolePermission: async (parent, args, context) =>
+    await useTransaction(async (transaction) =>
+      rolePermissionService.updateARolePermissionForMutation(args?.input, context?.user, transaction)
+    ),
+
+  removePermission: async (parent, args) =>
+    await useTransaction(async (transaction) =>
+      rolePermissionService.deleteARolePermissionForMutation(args, transaction)
     )
-    return { success: true, message: 'SUCCESS' }
-  }
 }

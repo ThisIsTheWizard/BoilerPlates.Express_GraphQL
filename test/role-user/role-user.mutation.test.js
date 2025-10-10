@@ -6,14 +6,16 @@ const findRoleByName = async (name, headers) => {
   const query = `
     query GetRoles {
       getRoles {
-        id
-        name
-        description
+        data {
+          id
+          name
+          description
+        }
       }
     }
   `
   const response = await api.post('/graphql', { query }, headers)
-  return response.data.data?.getRoles?.find((role) => role.name === name)
+  return response.data.data?.getRoles?.data?.find((role) => role.name === name)
 }
 
 describe('Role-User Mutation Tests', () => {
@@ -80,8 +82,8 @@ describe('Role-User Mutation Tests', () => {
     if (roleUserId) {
       try {
         const mutation = `
-          mutation RemoveRole($id: ID!) {
-            removeRole(id: $id) {
+          mutation RemoveRole($entity_id: String!) {
+            removeRole(entity_id: $entity_id) {
               success
             }
           }
@@ -90,7 +92,7 @@ describe('Role-User Mutation Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { id: roleUserId }
+            variables: { entity_id: roleUserId }
           },
           authHeaders
         )
@@ -196,8 +198,8 @@ describe('Role-User Mutation Tests', () => {
     it('deletes a role-user successfully', async () => {
       const targetId = roleUserId
       const mutation = `
-        mutation RemoveRole($id: ID!) {
-          removeRole(id: $id) {
+        mutation RemoveRole($entity_id: String!) {
+          removeRole(entity_id: $entity_id) {
             success
             message
           }
@@ -207,7 +209,7 @@ describe('Role-User Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { id: targetId }
+          variables: { entity_id: targetId }
         },
         authHeaders
       )
@@ -219,8 +221,8 @@ describe('Role-User Mutation Tests', () => {
 
     it('returns error when role-user does not exist', async () => {
       const mutation = `
-        mutation RemoveRole($id: ID!) {
-          removeRole(id: $id) {
+        mutation RemoveRole($entity_id: String!) {
+          removeRole(entity_id: $entity_id) {
             success
           }
         }
@@ -229,7 +231,7 @@ describe('Role-User Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { id: '00000000-0000-0000-0000-000000000000' }
+          variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
         },
         authHeaders
       )
@@ -241,15 +243,15 @@ describe('Role-User Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation RemoveRole($id: ID!) {
-          removeRole(id: $id) {
+        mutation RemoveRole($entity_id: String!) {
+          removeRole(entity_id: $entity_id) {
             success
           }
         }
       `
       const response = await api.post('/graphql', {
         query: mutation,
-        variables: { id: '00000000-0000-0000-0000-000000000000' }
+        variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
       })
 
       expect(response.status).to.equal(200)

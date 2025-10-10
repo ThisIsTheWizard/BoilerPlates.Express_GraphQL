@@ -1,29 +1,39 @@
 type Permission {
   id: ID
-  name: String
-  description: String
+  action: String
+  module: String
   created_at: String
   updated_at: String
 }
 
 input CreatePermissionInput {
-  name: String!
-  description: String
+  action: String
+  module: String
 }
 
 input UpdatePermissionInput {
-  id: ID!
-  name: String
-  description: String
+  entity_id: ID!
+  data: CreatePermissionInput
+}
+
+input PermissionQuery {
+  action: String
+  module: String
+  search_keyword: String
+}
+
+type PermissionQuerySchema {
+  data: [Permission]
+  meta_data: MetaData
 }
 
 extend type Query {
-  getPermissions: [Permission] @auth(roles: ["admin", "developer"])
-  getAPermission(id: ID!): Permission @auth(roles: ["admin", "developer"])
+  getAPermission(entity_id: ID!): Permission @auth(roles: ["admin", "developer"])
+  getPermissions(query: PermissionQuery, options: Options): PermissionQuerySchema @auth(roles: ["admin", "developer"])
 }
 
 extend type Mutation {
-  createPermission(input: CreatePermissionInput!): Permission! @auth(roles: ["admin", "developer"])
-  updatePermission(input: UpdatePermissionInput!): Permission! @auth(roles: ["admin", "developer"])
-  deletePermission(id: ID!): SuccessResponse! @auth(roles: ["admin", "developer"])
+  createPermission(input: CreatePermissionInput!): Permission @auth(roles: ["admin", "developer"])
+  updatePermission(input: UpdatePermissionInput!): Permission @auth(roles: ["admin", "developer"])
+  deletePermission(entity_id: ID!): Permission @auth(roles: ["admin", "developer"])
 }

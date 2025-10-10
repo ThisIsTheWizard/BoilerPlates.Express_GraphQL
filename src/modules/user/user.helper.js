@@ -33,7 +33,7 @@ export const prepareGetUsersQuery = (params) => {
 }
 
 export const getAUserForQuery = async (query) => {
-  commonHelper.checkRequiredFields(['entity_id'], query)
+  commonHelper.validateRequiredProps(['entity_id'], query)
 
   const user = await getAUser({
     attributes: ['id', 'email', 'first_name', 'last_name', 'status'],
@@ -83,7 +83,16 @@ export const getAuthUserWithRolesAndPermissions = async ({ roles, user_id }) => 
 
   result.roles = map(user?.roles, 'name')
   result.role = roleHelper.getTopRoleOfAUser(user.roles || [])
-  result.permissions = find(user?.roles, (role) => role?.name === user.role)?.permissions || []
+
+  const permissions = find(user?.roles, (role) => role?.name === user.role)?.permissions || []
+  const userPermissions = []
+  for (const permission of permissions) {
+    if (permission?.can_do_the_action) {
+      userPermissions.push(`${permission.module}.${permission.action}`)
+    }
+  }
+
+  result.permissions = userPermissions
   result.user_id = user.id
 
   return result

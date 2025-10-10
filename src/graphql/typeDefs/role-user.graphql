@@ -1,25 +1,38 @@
 type RoleUser {
-  id: ID
+  id: ID!
   role_id: String
   user_id: String
-  role: Role
-  user: User
   created_at: String
   updated_at: String
 }
 
-input AssignRoleInput {
-  role_id: ID!
-  user_id: ID!
+input CreateRoleUserInput {
+  role_id: String!
+  user_id: String!
+}
+
+input UpdateRoleUserInput {
+  entity_id: ID!
+  data: CreateRoleUserInput
+}
+
+input RoleUserQuery {
+  role_id: String
+  user_id: String
+}
+
+type RoleUserQuerySchema {
+  data: [RoleUser]
+  meta_data: MetaData
 }
 
 extend type Query {
-  getARoleUser(id: ID!): RoleUser @auth(roles: ["admin", "developer"])
-  getRoleUsers: [RoleUser] @auth(roles: ["admin", "developer"])
-  getUserRoles(user_id: ID!): [RoleUser] @auth(roles: ["admin", "developer"])
+  getARoleUser(entity_id: ID!): RoleUser @auth(roles: ["admin", "developer"])
+  getRoleUsers(query: RoleUserQuery, options: Options): RoleUserQuerySchema @auth(roles: ["admin", "developer"])
 }
 
 extend type Mutation {
-  assignRole(input: AssignRoleInput!): RoleUser! @auth(roles: ["admin", "developer"])
-  removeRole(id: ID!): SuccessResponse! @auth(roles: ["admin", "developer"])
+  assignRole(input: CreateRoleUserInput!): RoleUser @auth(roles: ["admin", "developer"])
+  updateRoleUser(input: UpdateRoleUserInput!): RoleUser @auth(roles: ["admin", "developer"])
+  removeRole(entity_id: ID!): RoleUser @auth(roles: ["admin", "developer"])
 }

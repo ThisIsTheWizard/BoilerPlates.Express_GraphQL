@@ -65,27 +65,31 @@ describe('User Query Tests', () => {
       const query = `
         query GetUsers {
           getUsers {
-            id
-            email
-            first_name
-            last_name
-            status
+            data {
+              id
+              email
+              first_name
+              last_name
+              status
+            }
           }
         }
       `
       const response = await api.post('/graphql', { query }, adminHeaders)
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.getUsers).to.be.an('array')
-      expect(response.data.data.getUsers.length).to.be.greaterThan(0)
+      expect(response.data.data.getUsers.data).to.be.an('array')
+      expect(response.data.data.getUsers.data.length).to.be.greaterThan(0)
     })
 
     it('returns error when not authorized', async () => {
       const query = `
         query GetUsers {
           getUsers {
-            id
-            email
+            data {
+              id
+              email
+            }
           }
         }
       `
@@ -100,8 +104,8 @@ describe('User Query Tests', () => {
   describe('getAUser query', () => {
     it('returns a single user when it exists', async () => {
       const query = `
-        query GetAUser($id: ID!) {
-          getAUser(id: $id) {
+        query GetAUser($entity_id: String!) {
+          getAUser(entity_id: $entity_id) {
             id
             email
             first_name
@@ -113,7 +117,7 @@ describe('User Query Tests', () => {
         '/graphql',
         {
           query,
-          variables: { id: testUserId }
+          variables: { entity_id: testUserId }
         },
         adminHeaders
       )
@@ -124,8 +128,8 @@ describe('User Query Tests', () => {
 
     it('returns error for non-existent user', async () => {
       const query = `
-        query GetAUser($id: ID!) {
-          getAUser(id: $id) {
+        query GetAUser($entity_id: String!) {
+          getAUser(entity_id: $entity_id) {
             id
             email
           }
@@ -135,7 +139,7 @@ describe('User Query Tests', () => {
         '/graphql',
         {
           query,
-          variables: { id: '00000000-0000-0000-0000-000000000000' }
+          variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
         },
         adminHeaders
       )

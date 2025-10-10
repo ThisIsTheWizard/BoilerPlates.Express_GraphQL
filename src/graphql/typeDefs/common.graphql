@@ -1,0 +1,12 @@
+directive @auth(permission: String, roles: [String!]!) on FIELD_DEFINITION
+
+type MetaData {
+  filtered_rows: Int
+  total_rows: Int
+}
+
+input Options {
+  limit: Int
+  offset: Int
+  order: Array
+}

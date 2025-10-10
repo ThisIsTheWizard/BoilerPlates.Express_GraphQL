@@ -1,6 +1,7 @@
-import { userHelper } from 'src/modules/helpers'
+import { commonHelper, userHelper } from 'src/modules/helpers'
 
 export default {
-  getAUser: async (_, { id }) => userHelper.getAUserForQuery({ entity_id: id }),
-  getUsers: async () => userHelper.getUsers({})
+  getAUser: async (parent, args) => userHelper.getAUserForQuery(args),
+  getUsers: async (parent, args, context) =>
+    userHelper.getUsersForQuery(commonHelper.prepareRequestForQuery(args, context))
 }
