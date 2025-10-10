@@ -11,7 +11,7 @@ describe('User Query Tests', () => {
     adminHeaders = { headers: { Authorization: tokens.access_token } }
 
     const mutation = `
-      mutation CreateUser($input: RegisterInput!) {
+      mutation CreateUser($input: CreateUserInput!) {
         createUser(input: $input) {
           id
           email
@@ -40,9 +40,9 @@ describe('User Query Tests', () => {
     if (testUserId) {
       try {
         const mutation = `
-          mutation DeleteUser($id: ID!) {
-            deleteUser(id: $id) {
-              success
+          mutation DeleteUser($entity_id: ID!) {
+            deleteUser(entity_id: $entity_id) {
+              id
             }
           }
         `
@@ -50,7 +50,7 @@ describe('User Query Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { id: testUserId }
+            variables: { entity_id: testUserId }
           },
           adminHeaders
         )
@@ -104,7 +104,7 @@ describe('User Query Tests', () => {
   describe('getAUser query', () => {
     it('returns a single user when it exists', async () => {
       const query = `
-        query GetAUser($entity_id: String!) {
+        query GetAUser($entity_id: ID!) {
           getAUser(entity_id: $entity_id) {
             id
             email
@@ -128,7 +128,7 @@ describe('User Query Tests', () => {
 
     it('returns error for non-existent user', async () => {
       const query = `
-        query GetAUser($entity_id: String!) {
+        query GetAUser($entity_id: ID!) {
           getAUser(entity_id: $entity_id) {
             id
             email

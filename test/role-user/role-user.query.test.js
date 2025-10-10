@@ -69,7 +69,7 @@ describe('Role-User Query Tests', () => {
       role = response.data.data.createRole
     }
     const assignMutation = `
-      mutation AssignRole($input: AssignRoleInput!) {
+      mutation AssignRole($input: CreateRoleUserInput!) {
         assignRole(input: $input) {
           id
           role_id
@@ -92,9 +92,9 @@ describe('Role-User Query Tests', () => {
     if (roleUserId) {
       try {
         const mutation = `
-          mutation RemoveRole($id: ID!) {
-            removeRole(id: $id) {
-              success
+          mutation RemoveRole($entity_id: ID!) {
+            removeRole(entity_id: $entity_id) {
+              id
             }
           }
         `
@@ -102,7 +102,7 @@ describe('Role-User Query Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { id: roleUserId }
+            variables: { entity_id: roleUserId }
           },
           authHeaders
         )
@@ -121,12 +121,6 @@ describe('Role-User Query Tests', () => {
               id
               role_id
               user_id
-              role {
-                name
-              }
-              user {
-                email
-              }
             }
           }
         }
@@ -160,7 +154,7 @@ describe('Role-User Query Tests', () => {
   describe('getARoleUser query', () => {
     it('returns a single role user when it exists', async () => {
       const query = `
-        query GetARoleUser($entity_id: String!) {
+        query GetARoleUser($entity_id: ID!) {
           getARoleUser(entity_id: $entity_id) {
             id
             role_id
@@ -183,7 +177,7 @@ describe('Role-User Query Tests', () => {
 
     it('returns error for non-existent role user', async () => {
       const query = `
-        query GetARoleUser($entity_id: String!) {
+        query GetARoleUser($entity_id: ID!) {
           getARoleUser(entity_id: $entity_id) {
             id
             role_id

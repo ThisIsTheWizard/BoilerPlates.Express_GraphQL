@@ -9,8 +9,8 @@ describe('Permission Mutation Tests', () => {
       mutation CreatePermission($input: CreatePermissionInput!) {
         createPermission(input: $input) {
           id
-          name
-          description
+          action
+          module
         }
       }
     `
@@ -37,9 +37,9 @@ describe('Permission Mutation Tests', () => {
     if (createdPermissionId) {
       try {
         const mutation = `
-          mutation DeletePermission($id: ID!) {
-            deletePermission(id: $id) {
-              success
+          mutation DeletePermission($entity_id: ID!) {
+            deletePermission(entity_id: $entity_id) {
+              id
             }
           }
         `
@@ -47,7 +47,7 @@ describe('Permission Mutation Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { id: createdPermissionId }
+            variables: { entity_id: createdPermissionId }
           },
           authHeaders
         )
@@ -59,12 +59,12 @@ describe('Permission Mutation Tests', () => {
 
   describe('createPermission mutation', () => {
     it('creates a permission successfully', async () => {
-      const response = await createPermission({ name: 'create_permission', description: 'Create permission' })
+      const response = await createPermission({ action: 'create', module: 'permission' })
 
       expect(response.status).to.equal(200)
       expect(response.data.data.createPermission).to.include({
-        name: 'create_permission',
-        description: 'Create permission'
+        action: 'create',
+        module: 'permission'
       })
       expect(createdPermissionId).to.be.a('string')
     })
@@ -74,40 +74,18 @@ describe('Permission Mutation Tests', () => {
         mutation CreatePermission($input: CreatePermissionInput!) {
           createPermission(input: $input) {
             id
-            name
+            action
           }
         }
       `
       const response = await api.post('/graphql', {
         query: mutation,
-        variables: { input: { name: 'read_user' } }
+        variables: { input: { action: 'read', module: 'user' } }
       })
 
       expect(response.status).to.equal(200)
       expect(response.data.errors).to.exist
       expect(response.data.errors[0].message).to.equal('UNAUTHORIZED')
-    })
-
-    it('returns error for duplicate permission name', async () => {
-      const mutation = `
-        mutation CreatePermission($input: CreatePermissionInput!) {
-          createPermission(input: $input) {
-            id
-            name
-          }
-        }
-      `
-      const response = await api.post(
-        '/graphql',
-        {
-          query: mutation,
-          variables: { input: { name: 'create_permission', description: 'Duplicate permission' } }
-        },
-        authHeaders
-      )
-
-      expect(response.status).to.equal(200)
-      expect(response.data.errors).to.exist
     })
   })
 
@@ -116,7 +94,7 @@ describe('Permission Mutation Tests', () => {
 
     before(async () => {
       if (!createdPermissionId) {
-        await createPermission({ name: 'update_role', description: 'Update role' })
+        await createPermission({ action: 'update', module: 'role' })
       }
       permissionId = createdPermissionId
     })
@@ -126,8 +104,8 @@ describe('Permission Mutation Tests', () => {
         mutation UpdatePermission($input: UpdatePermissionInput!) {
           updatePermission(input: $input) {
             id
-            name
-            description
+            action
+            module
           }
         }
       `
@@ -135,13 +113,13 @@ describe('Permission Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { input: { id: permissionId, description: 'Updated role permission' } }
+          variables: { input: { entity_id: permissionId, data: { module: 'role_permission' } } }
         },
         authHeaders
       )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.updatePermission.description).to.equal('Updated role permission')
+      expect(response.data.data.updatePermission.module).to.equal('role_permission')
     })
 
     it('returns error for unknown permission', async () => {
@@ -149,7 +127,7 @@ describe('Permission Mutation Tests', () => {
         mutation UpdatePermission($input: UpdatePermissionInput!) {
           updatePermission(input: $input) {
             id
-            name
+            action
           }
         }
       `
@@ -157,7 +135,9 @@ describe('Permission Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { input: { id: '00000000-0000-0000-0000-000000000000', name: 'user' } }
+          variables: {
+            input: { entity_id: '00000000-0000-0000-0000-000000000000', data: { action: 'user' } }
+          }
         },
         authHeaders
       )
@@ -172,13 +152,13 @@ describe('Permission Mutation Tests', () => {
         mutation UpdatePermission($input: UpdatePermissionInput!) {
           updatePermission(input: $input) {
             id
-            name
+            action
           }
         }
       `
       const response = await api.post('/graphql', {
         query: mutation,
-        variables: { input: { id: permissionId, name: 'test' } }
+        variables: { input: { entity_id: permissionId, data: { action: 'test' } } }
       })
 
       expect(response.status).to.equal(200)
@@ -191,18 +171,15 @@ describe('Permission Mutation Tests', () => {
     let permissionId
 
     before(async () => {
-      if (!createdPermissionId) {
-        await createPermission({ name: 'delete_role_user', description: 'Delete role user' })
-      }
-      permissionId = createdPermissionId
+      const response = await createPermission({ action: 'delete', module: 'role_user' })
+      permissionId = response.data.data.createPermission.id
     })
 
     it('deletes a permission successfully', async () => {
       const mutation = `
-        mutation DeletePermission($id: ID!) {
-          deletePermission(id: $id) {
-            success
-            message
+        mutation DeletePermission($entity_id: ID!) {
+          deletePermission(entity_id: $entity_id) {
+            id
           }
         }
       `
@@ -210,21 +187,21 @@ describe('Permission Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { id: permissionId }
+          variables: { entity_id: permissionId }
         },
         authHeaders
       )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.deletePermission.success).to.equal(true)
+      expect(response.data.data.deletePermission.id).to.equal(permissionId)
       createdPermissionId = null
     })
 
     it('returns error when permission is missing', async () => {
       const mutation = `
-        mutation DeletePermission($id: ID!) {
-          deletePermission(id: $id) {
-            success
+        mutation DeletePermission($entity_id: ID!) {
+          deletePermission(entity_id: $entity_id) {
+            id
           }
         }
       `
@@ -232,7 +209,7 @@ describe('Permission Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { id: permissionId }
+          variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
         },
         authHeaders
       )
@@ -244,15 +221,15 @@ describe('Permission Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation DeletePermission($id: ID!) {
-          deletePermission(id: $id) {
-            success
+        mutation DeletePermission($entity_id: ID!) {
+          deletePermission(entity_id: $entity_id) {
+            id
           }
         }
       `
       const response = await api.post('/graphql', {
         query: mutation,
-        variables: { id: '00000000-0000-0000-0000-000000000000' }
+        variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
       })
 
       expect(response.status).to.equal(200)

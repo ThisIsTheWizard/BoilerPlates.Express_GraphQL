@@ -22,7 +22,6 @@ describe('Role-User Mutation Tests', () => {
   let authHeaders
   let createdUser
   let primaryRoleId
-  let secondaryRoleId
   let roleUserId
 
   before(async () => {
@@ -73,18 +72,15 @@ describe('Role-User Mutation Tests', () => {
     } else {
       primaryRoleId = moderatorRole.id
     }
-
-    const developerRole = await findRoleByName('developer', authHeaders)
-    secondaryRoleId = developerRole.id
   })
 
   after(async () => {
     if (roleUserId) {
       try {
         const mutation = `
-          mutation RemoveRole($entity_id: String!) {
+          mutation RemoveRole($entity_id: ID!) {
             removeRole(entity_id: $entity_id) {
-              success
+              id
             }
           }
         `
@@ -105,7 +101,7 @@ describe('Role-User Mutation Tests', () => {
   describe('assignRole mutation', () => {
     it('creates a role-user successfully', async () => {
       const mutation = `
-        mutation AssignRole($input: AssignRoleInput!) {
+        mutation AssignRole($input: CreateRoleUserInput!) {
           assignRole(input: $input) {
             id
             role_id
@@ -129,7 +125,7 @@ describe('Role-User Mutation Tests', () => {
 
     it('returns error when role_id is missing', async () => {
       const mutation = `
-        mutation AssignRole($input: AssignRoleInput!) {
+        mutation AssignRole($input: CreateRoleUserInput!) {
           assignRole(input: $input) {
             id
             role_id
@@ -152,7 +148,7 @@ describe('Role-User Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation AssignRole($input: AssignRoleInput!) {
+        mutation AssignRole($input: CreateRoleUserInput!) {
           assignRole(input: $input) {
             id
             role_id
@@ -175,7 +171,7 @@ describe('Role-User Mutation Tests', () => {
     before(async () => {
       if (!roleUserId) {
         const mutation = `
-          mutation AssignRole($input: AssignRoleInput!) {
+          mutation AssignRole($input: CreateRoleUserInput!) {
             assignRole(input: $input) {
               id
               role_id
@@ -198,10 +194,9 @@ describe('Role-User Mutation Tests', () => {
     it('deletes a role-user successfully', async () => {
       const targetId = roleUserId
       const mutation = `
-        mutation RemoveRole($entity_id: String!) {
+        mutation RemoveRole($entity_id: ID!) {
           removeRole(entity_id: $entity_id) {
-            success
-            message
+            id
           }
         }
       `
@@ -215,15 +210,15 @@ describe('Role-User Mutation Tests', () => {
       )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.removeRole.success).to.equal(true)
+      expect(response.data.data.removeRole.id).to.equal(targetId)
       roleUserId = null
     })
 
     it('returns error when role-user does not exist', async () => {
       const mutation = `
-        mutation RemoveRole($entity_id: String!) {
+        mutation RemoveRole($entity_id: ID!) {
           removeRole(entity_id: $entity_id) {
-            success
+            id
           }
         }
       `
@@ -243,9 +238,9 @@ describe('Role-User Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation RemoveRole($entity_id: String!) {
+        mutation RemoveRole($entity_id: ID!) {
           removeRole(entity_id: $entity_id) {
-            success
+            id
           }
         }
       `

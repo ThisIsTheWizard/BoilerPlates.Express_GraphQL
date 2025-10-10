@@ -8,5 +8,5 @@ type MetaData {
 input Options {
   limit: Int
   offset: Int
-  order: Array
+  order: [[String!]!]
 }

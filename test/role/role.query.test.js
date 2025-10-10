@@ -11,9 +11,11 @@ describe('Role Query Tests', () => {
     const query = `
       query GetRoles {
         getRoles {
-          id
-          name
-          description
+          data {
+            id
+            name
+            description
+          }
         }
       }
     `
@@ -62,7 +64,7 @@ describe('Role Query Tests', () => {
   describe('getARole query', () => {
     it('returns a single role when it exists', async () => {
       const query = `
-        query GetARole($entity_id: String!) {
+        query GetARole($entity_id: ID!) {
           getARole(entity_id: $entity_id) {
             id
             name
@@ -85,7 +87,7 @@ describe('Role Query Tests', () => {
 
     it('returns error for non-existent role', async () => {
       const query = `
-        query GetARole($entity_id: String!) {
+        query GetARole($entity_id: ID!) {
           getARole(entity_id: $entity_id) {
             id
             name

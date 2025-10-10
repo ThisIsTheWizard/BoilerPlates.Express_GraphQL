@@ -31,12 +31,14 @@ type UserQuerySchema {
   meta_data: MetaData
 }
 
-extend type Query {
+# Root query
+type Query {
   getAUser(entity_id: ID!): User @auth(roles: ["admin", "developer"])
   getUsers(query: UserQuery, options: Options): UserQuerySchema @auth(roles: ["admin", "developer"])
 }
 
-extend type Mutation {
+# Root mutation
+type Mutation {
   createUser(input: CreateUserInput!): User @auth(roles: ["admin", "developer"])
   updateUser(input: UpdateUserInput!): User @auth(roles: ["admin", "developer"])
   deleteUser(entity_id: ID!): User @auth(roles: ["admin", "developer"])

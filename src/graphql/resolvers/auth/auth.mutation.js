@@ -10,9 +10,7 @@ export default {
     await useTransaction(async (transaction) => authService.verifyUserEmail(args?.input, transaction)),
 
   resendVerificationEmail: async (parent, args) => {
-    await useTransaction(async (transaction) =>
-      authService.resendUserVerificationEmail(args?.input, transaction)
-    )
+    await useTransaction(async (transaction) => authService.resendUserVerificationEmail(args?.input, transaction))
     return { success: true, message: 'SUCCESS' }
   },
 
@@ -23,9 +21,7 @@ export default {
     await useTransaction(async (transaction) => authService.refreshTokensForUser(args?.input, transaction)),
 
   logout: async (parent, args, context) => {
-    await useTransaction(async (transaction) =>
-      authService.logoutAUser({ ...args?.input, ...context }, transaction)
-    )
+    await useTransaction(async (transaction) => authService.logoutAUser({ ...args?.input, ...context }, transaction))
     return { success: true, message: 'LOGGED_OUT' }
   },
 
@@ -89,9 +85,7 @@ export default {
     await useTransaction(async (transaction) => authService.setUserEmailByAdmin(args?.input, transaction)),
 
   setUserPasswordByAdmin: async (parent, args) => {
-    await useTransaction(async (transaction) =>
-      authService.changePasswordByAdmin(args?.input, transaction)
-    )
+    await useTransaction(async (transaction) => authService.changePasswordByAdmin(args?.input, transaction))
     return { success: true, message: 'SUCCESS' }
   }
 }

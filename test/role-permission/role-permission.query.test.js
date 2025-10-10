@@ -16,20 +16,22 @@ const findRoleByName = async (name, headers) => {
   return response.data.data?.getRoles?.data?.find((role) => role.name === name)
 }
 
-const findPermissionByName = async (name, headers) => {
+const findPermissionByActionAndModule = async (action, module, headers) => {
   const query = `
     query GetPermissions {
       getPermissions {
         data {
           id
-          name
-          description
+          action
+          module
         }
       }
     }
   `
   const response = await api.post('/graphql', { query }, headers)
-  return response.data.data?.getPermissions?.data?.find((permission) => permission.name === name)
+  return response.data.data?.getPermissions?.data?.find(
+    (permission) => permission.action === action && permission.module === module
+  )
 }
 
 describe('Role-Permission Query Tests', () => {
@@ -44,14 +46,14 @@ describe('Role-Permission Query Tests', () => {
 
     const role = await findRoleByName('user', authHeaders)
 
-    permission = await findPermissionByName('read_role_permission', authHeaders)
+    permission = await findPermissionByActionAndModule('read', 'role_permission', authHeaders)
     if (!permission) {
       const mutation = `
         mutation CreatePermission($input: CreatePermissionInput!) {
           createPermission(input: $input) {
             id
-            name
-            description
+            action
+            module
           }
         }
       `
@@ -59,7 +61,7 @@ describe('Role-Permission Query Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { input: { name: 'read_role_permission', description: 'Read role permission' } }
+          variables: { input: { action: 'read', module: 'role_permission' } }
         },
         authHeaders
       )
@@ -68,7 +70,7 @@ describe('Role-Permission Query Tests', () => {
     }
 
     const assignMutation = `
-      mutation AssignPermission($input: AssignPermissionInput!) {
+      mutation AssignPermission($input: CreateRolePermissionInput!) {
         assignPermission(input: $input) {
           id
           role_id
@@ -80,7 +82,7 @@ describe('Role-Permission Query Tests', () => {
       '/graphql',
       {
         query: assignMutation,
-        variables: { input: { permission_id: permission.id, role_id: role.id } }
+        variables: { input: { permission_id: permission.id, role_id: role.id, can_do_the_action: true } }
       },
       authHeaders
     )
@@ -91,9 +93,9 @@ describe('Role-Permission Query Tests', () => {
     if (rolePermissionId) {
       try {
         const mutation = `
-          mutation RemovePermission($id: ID!) {
-            removePermission(id: $id) {
-              success
+          mutation RemovePermission($entity_id: ID!) {
+            removePermission(entity_id: $entity_id) {
+              id
             }
           }
         `
@@ -101,7 +103,7 @@ describe('Role-Permission Query Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { id: rolePermissionId }
+            variables: { entity_id: rolePermissionId }
           },
           authHeaders
         )
@@ -113,9 +115,9 @@ describe('Role-Permission Query Tests', () => {
     if (permissionCreatedForTest && permission?.id) {
       try {
         const mutation = `
-          mutation DeletePermission($id: ID!) {
-            deletePermission(id: $id) {
-              success
+          mutation DeletePermission($entity_id: ID!) {
+            deletePermission(entity_id: $entity_id) {
+              id
             }
           }
         `
@@ -123,7 +125,7 @@ describe('Role-Permission Query Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { id: permission.id }
+            variables: { entity_id: permission.id }
           },
           authHeaders
         )
@@ -142,12 +144,6 @@ describe('Role-Permission Query Tests', () => {
               id
               role_id
               permission_id
-              role {
-                name
-              }
-              permission {
-                name
-              }
             }
           }
         }
@@ -181,7 +177,7 @@ describe('Role-Permission Query Tests', () => {
   describe('getARolePermission query', () => {
     it('returns a single role permission when it exists', async () => {
       const query = `
-        query GetARolePermission($entity_id: String!) {
+        query GetARolePermission($entity_id: ID!) {
           getARolePermission(entity_id: $entity_id) {
             id
             role_id
@@ -206,7 +202,7 @@ describe('Role-Permission Query Tests', () => {
 
     it('returns error for non-existent role permission', async () => {
       const query = `
-        query GetARolePermission($entity_id: String!) {
+        query GetARolePermission($entity_id: ID!) {
           getARolePermission(entity_id: $entity_id) {
             id
             role_id

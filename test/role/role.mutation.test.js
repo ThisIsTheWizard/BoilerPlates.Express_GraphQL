@@ -57,9 +57,9 @@ describe('Role Mutation Tests', () => {
       if (existing) {
         try {
           const mutation = `
-            mutation DeleteRole($entity_id: String!) {
+            mutation DeleteRole($entity_id: ID!) {
               deleteRole(entity_id: $entity_id) {
-                success
+                id
               }
             }
           `
@@ -263,10 +263,9 @@ describe('Role Mutation Tests', () => {
 
     it('deletes a role successfully', async () => {
       const mutation = `
-        mutation DeleteRole($entity_id: String!) {
+        mutation DeleteRole($entity_id: ID!) {
           deleteRole(entity_id: $entity_id) {
-            success
-            message
+            id
           }
         }
       `
@@ -280,15 +279,15 @@ describe('Role Mutation Tests', () => {
       )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.deleteRole.success).to.equal(true)
+      expect(response.data.data.deleteRole.id).to.equal(createdRole.id)
       createdRole = null
     })
 
     it('returns error when role does not exist', async () => {
       const mutation = `
-        mutation DeleteRole($entity_id: String!) {
+        mutation DeleteRole($entity_id: ID!) {
           deleteRole(entity_id: $entity_id) {
-            success
+            id
           }
         }
       `
@@ -308,9 +307,9 @@ describe('Role Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation DeleteRole($entity_id: String!) {
+        mutation DeleteRole($entity_id: ID!) {
           deleteRole(entity_id: $entity_id) {
-            success
+            id
           }
         }
       `

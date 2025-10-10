@@ -12,7 +12,7 @@ describe('Permission Query Tests', () => {
       mutation CreatePermission($input: CreatePermissionInput!) {
         createPermission(input: $input) {
           id
-          name
+          action
         }
       }
     `
@@ -20,7 +20,7 @@ describe('Permission Query Tests', () => {
       '/graphql',
       {
         query: mutation,
-        variables: { input: { name: 'update_user', description: 'Update user permission' } }
+        variables: { input: { action: 'update', module: 'user' } }
       },
       authHeaders
     )
@@ -32,9 +32,9 @@ describe('Permission Query Tests', () => {
   after(async () => {
     if (permissionId) {
       const mutation = `
-        mutation DeletePermission($id: ID!) {
-          deletePermission(id: $id) {
-            success
+        mutation DeletePermission($entity_id: ID!) {
+          deletePermission(entity_id: $entity_id) {
+            id
           }
         }
       `
@@ -42,7 +42,7 @@ describe('Permission Query Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { id: permissionId }
+          variables: { entity_id: permissionId }
         },
         authHeaders
       )
@@ -54,9 +54,11 @@ describe('Permission Query Tests', () => {
       const query = `
         query GetPermissions {
           getPermissions {
-            id
-            name
-            description
+            data {
+              id
+              action
+              module
+            }
           }
         }
       `
@@ -69,15 +71,17 @@ describe('Permission Query Tests', () => {
       )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.getPermissions).to.be.an('array')
+      expect(response.data.data.getPermissions.data).to.be.an('array')
     })
 
     it('returns error when token is missing', async () => {
       const query = `
         query GetPermissions {
           getPermissions {
-            id
-            name
+            data {
+              id
+              action
+            }
           }
         }
       `
@@ -92,11 +96,11 @@ describe('Permission Query Tests', () => {
   describe('getAPermission query', () => {
     it('returns a single permission when it exists', async () => {
       const query = `
-        query GetAPermission($id: ID!) {
-          getAPermission(id: $id) {
+        query GetAPermission($entity_id: ID!) {
+          getAPermission(entity_id: $entity_id) {
             id
-            name
-            description
+            action
+            module
           }
         }
       `
@@ -104,7 +108,7 @@ describe('Permission Query Tests', () => {
         '/graphql',
         {
           query,
-          variables: { id: permissionId }
+          variables: { entity_id: permissionId }
         },
         authHeaders
       )
@@ -117,10 +121,10 @@ describe('Permission Query Tests', () => {
 
     it('returns error for non-existent permission', async () => {
       const query = `
-        query GetAPermission($id: ID!) {
-          getAPermission(id: $id) {
+        query GetAPermission($entity_id: ID!) {
+          getAPermission(entity_id: $entity_id) {
             id
-            name
+            action
           }
         }
       `
@@ -128,7 +132,7 @@ describe('Permission Query Tests', () => {
         '/graphql',
         {
           query,
-          variables: { id: '00000000-0000-0000-0000-000000000000' }
+          variables: { entity_id: '00000000-0000-0000-0000-000000000000' }
         },
         authHeaders
       )

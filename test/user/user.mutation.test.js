@@ -15,9 +15,9 @@ describe('User Mutation Tests', () => {
     if (createdUserId) {
       try {
         const mutation = `
-          mutation DeleteUser($entity_id: String!) {
+          mutation DeleteUser($entity_id: ID!) {
             deleteUser(entity_id: $entity_id) {
-              success
+              id
             }
           }
         `
@@ -39,7 +39,7 @@ describe('User Mutation Tests', () => {
     it('creates a user successfully', async () => {
       const email = randomEmail('create')
       const mutation = `
-        mutation CreateUser($input: RegisterInput!) {
+        mutation CreateUser($input: CreateUserInput!) {
           createUser(input: $input) {
             id
             email
@@ -72,7 +72,7 @@ describe('User Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation CreateUser($input: RegisterInput!) {
+        mutation CreateUser($input: CreateUserInput!) {
           createUser(input: $input) {
             id
             email
@@ -84,6 +84,8 @@ describe('User Mutation Tests', () => {
         variables: {
           input: {
             email: randomEmail('unauthorized'),
+            first_name: 'Test',
+            last_name: 'User',
             password: 'Test123!@#'
           }
         }
@@ -96,7 +98,7 @@ describe('User Mutation Tests', () => {
 
     it('returns error for duplicate email', async () => {
       const mutation = `
-        mutation CreateUser($input: RegisterInput!) {
+        mutation CreateUser($input: CreateUserInput!) {
           createUser(input: $input) {
             id
             email
@@ -215,10 +217,9 @@ describe('User Mutation Tests', () => {
   describe('deleteUser mutation', () => {
     it('deletes a user successfully', async () => {
       const mutation = `
-        mutation DeleteUser($entity_id: String!) {
+        mutation DeleteUser($entity_id: ID!) {
           deleteUser(entity_id: $entity_id) {
-            success
-            message
+            id
           }
         }
       `
@@ -232,15 +233,15 @@ describe('User Mutation Tests', () => {
       )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.deleteUser.success).to.equal(true)
+      expect(response.data.data.deleteUser.id).to.equal(createdUserId)
       createdUserId = null
     })
 
     it('returns error for non-existent user', async () => {
       const mutation = `
-        mutation DeleteUser($entity_id: String!) {
+        mutation DeleteUser($entity_id: ID!) {
           deleteUser(entity_id: $entity_id) {
-            success
+            id
           }
         }
       `
@@ -260,9 +261,9 @@ describe('User Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation DeleteUser($entity_id: String!) {
+        mutation DeleteUser($entity_id: ID!) {
           deleteUser(entity_id: $entity_id) {
-            success
+            id
           }
         }
       `

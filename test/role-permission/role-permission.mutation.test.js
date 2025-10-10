@@ -16,20 +16,22 @@ const findRoleByName = async (name, headers) => {
   return response.data.data?.getRoles?.data?.find((role) => role.name === name)
 }
 
-const findPermissionByName = async (name, headers) => {
+const findPermissionByActionAndModule = async (action, module, headers) => {
   const query = `
     query GetPermissions {
       getPermissions {
         data {
           id
-          name
-          description
+          action
+          module
         }
       }
     }
   `
   const response = await api.post('/graphql', { query }, headers)
-  return response.data.data?.getPermissions?.data?.find((permission) => permission.name === name)
+  return response.data.data?.getPermissions?.data?.find(
+    (permission) => permission.action === action && permission.module === module
+  )
 }
 
 describe('Role-Permission Mutation Tests', () => {
@@ -46,14 +48,14 @@ describe('Role-Permission Mutation Tests', () => {
     const role = await findRoleByName('user', authHeaders)
     roleId = role.id
 
-    permission = await findPermissionByName('create_role_permission', authHeaders)
+    permission = await findPermissionByActionAndModule('create', 'role_permission', authHeaders)
     if (!permission) {
       const mutation = `
         mutation CreatePermission($input: CreatePermissionInput!) {
           createPermission(input: $input) {
             id
-            name
-            description
+            action
+            module
           }
         }
       `
@@ -61,7 +63,7 @@ describe('Role-Permission Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { input: { name: 'create_role_permission', description: 'Create role permission' } }
+          variables: { input: { action: 'create', module: 'role_permission' } }
         },
         authHeaders
       )
@@ -74,9 +76,9 @@ describe('Role-Permission Mutation Tests', () => {
     if (rolePermissionId) {
       try {
         const mutation = `
-          mutation RemovePermission($entity_id: String!) {
+          mutation RemovePermission($entity_id: ID!) {
             removePermission(entity_id: $entity_id) {
-              success
+              id
             }
           }
         `
@@ -96,9 +98,9 @@ describe('Role-Permission Mutation Tests', () => {
     if (permissionCreatedForTest && permission?.id) {
       try {
         const mutation = `
-          mutation DeletePermission($entity_id: String!) {
+          mutation DeletePermission($entity_id: ID!) {
             deletePermission(entity_id: $entity_id) {
-              success
+              id
             }
           }
         `
@@ -119,7 +121,7 @@ describe('Role-Permission Mutation Tests', () => {
   describe('assignPermission mutation', () => {
     it('creates a role permission successfully', async () => {
       const mutation = `
-        mutation AssignPermission($input: AssignPermissionInput!) {
+        mutation AssignPermission($input: CreateRolePermissionInput!) {
           assignPermission(input: $input) {
             id
             role_id
@@ -143,7 +145,7 @@ describe('Role-Permission Mutation Tests', () => {
 
     it('returns error when permission_id is missing', async () => {
       const mutation = `
-        mutation AssignPermission($input: AssignPermissionInput!) {
+        mutation AssignPermission($input: CreateRolePermissionInput!) {
           assignPermission(input: $input) {
             id
             role_id
@@ -166,7 +168,7 @@ describe('Role-Permission Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation AssignPermission($input: AssignPermissionInput!) {
+        mutation AssignPermission($input: CreateRolePermissionInput!) {
           assignPermission(input: $input) {
             id
             role_id
@@ -189,7 +191,7 @@ describe('Role-Permission Mutation Tests', () => {
     before(async () => {
       if (!rolePermissionId) {
         const mutation = `
-          mutation AssignPermission($input: AssignPermissionInput!) {
+          mutation AssignPermission($input: CreateRolePermissionInput!) {
             assignPermission(input: $input) {
               id
               role_id
@@ -212,10 +214,9 @@ describe('Role-Permission Mutation Tests', () => {
     it('deletes a role permission successfully', async () => {
       const targetId = rolePermissionId
       const mutation = `
-        mutation RemovePermission($entity_id: String!) {
+        mutation RemovePermission($entity_id: ID!) {
           removePermission(entity_id: $entity_id) {
-            success
-            message
+            id
           }
         }
       `
@@ -229,15 +230,15 @@ describe('Role-Permission Mutation Tests', () => {
       )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.removePermission.success).to.equal(true)
+      expect(response.data.data.removePermission.id).to.equal(targetId)
       rolePermissionId = null
     })
 
     it('returns error when role permission does not exist', async () => {
       const mutation = `
-        mutation RemovePermission($entity_id: String!) {
+        mutation RemovePermission($entity_id: ID!) {
           removePermission(entity_id: $entity_id) {
-            success
+            id
           }
         }
       `
@@ -257,9 +258,9 @@ describe('Role-Permission Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation RemovePermission($entity_id: String!) {
+        mutation RemovePermission($entity_id: ID!) {
           removePermission(entity_id: $entity_id) {
-            success
+            id
           }
         }
       `
