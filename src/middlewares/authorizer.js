@@ -1,4 +1,4 @@
-import { intersection, size } from 'lodash'
+import { size } from 'lodash'
 
 // Initiating Dot Env
 require('dotenv').config()
@@ -27,35 +27,17 @@ export const validateTokenAndGetAuthUser = async (token = '') => {
   })
 }
 
-export const authorizer = (roles = []) => {
-  const callback = async (req, res, next) => {
-    // Skip auth for GraphiQL
-    if (req.method === 'GET' && req.originalUrl === '/graphql') {
-      return next()
-    }
-    // Skip auth for introspection queries
-    if (req.body?.query?.includes('__schema') || req.body?.query?.includes('IntrospectionQuery')) {
-      return next()
-    }
-
-    try {
-      const token = req.headers?.authorization || ''
-      if (!token) {
-        throw new Error('MISSING_TOKEN')
-      }
-
+export const authorizer = async (req, res, next) => {
+  try {
+    const token = req.headers?.authorization || ''
+    if (token) {
       req.user = await validateTokenAndGetAuthUser(token)
-
-      if (size(roles) && !size(intersection(roles, req.user?.roles))) {
-        throw new Error('UNAUTHORIZED')
-      }
-
-      return next()
-    } catch (err) {
-      err.statusCode = 401
-      next(err)
+    } else {
+      req.user = {}
     }
-  }
 
-  return callback
+    return next()
+  } catch {
+    return next()
+  }
 }

@@ -22,7 +22,7 @@ GQLServer.start()
 
     router.use(
       '/graphql',
-      authorizer(),
+      authorizer,
       expressMiddleware(GQLServer, { context: ({ req }) => ({ token: req.headers.authorization, user: req.user }) })
     )
   })
