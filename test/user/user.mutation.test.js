@@ -1,19 +1,20 @@
+import { VerificationTokenEntity } from 'src/modules/entities'
+
 import { expect, graphqlApi, loginAndGetTokens } from 'test/setup'
 
 const randomEmail = (prefix) => `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}@example.com`
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const waitForVerificationToken = async ({ email, status = 'unverified', type }) => {
-  const params = { email, status }
-  if (type) params.type = type
-
   let token
   let lastError
 
+  const where = { email, status }
+  if (type) where.type = type
   for (let attempt = 0; attempt < 20; attempt += 1) {
     try {
-      const response = await graphqlApi.get('/test/verification-tokens', { params })
-      token = response.data.data
+      const verificationToken = await VerificationTokenEntity.findOne({ order: [['created_at', 'DESC']], where })
+      token = verificationToken?.token || null
       if (token) break
     } catch (error) {
       lastError = error

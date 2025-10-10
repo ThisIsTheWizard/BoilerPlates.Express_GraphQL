@@ -11,7 +11,6 @@ import { GQLServer } from 'src/graphql/server'
 import { authorizer } from 'src/middlewares/authorizer'
 
 // Utils
-import { getLatestVerificationTokenForTesting, startDBSetupForTesting } from 'src/utils/seed'
 
 const router = Router()
 
@@ -29,9 +28,5 @@ GQLServer.start()
   .catch((err) => {
     console.log('+++ Something went wrong when starting GraphQL server, error:', err, '+++')
   })
-
-// Test
-router.post('/test/setup', startDBSetupForTesting)
-router.get('/test/verification-tokens', getLatestVerificationTokenForTesting)
 
 export default router
