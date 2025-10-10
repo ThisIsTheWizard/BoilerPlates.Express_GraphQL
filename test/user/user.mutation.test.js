@@ -217,7 +217,7 @@ describe('User Mutation Tests', () => {
   describe('POST /users/login', () => {
     it('logs in successfully with valid credentials', async () => {
       const response = await api.post('/users/login', {
-        email: 'test@user.com',
+        email: 'admin@test.com',
         password: '123456aA@'
       })
 
@@ -230,7 +230,7 @@ describe('User Mutation Tests', () => {
 
       try {
         await api.post('/users/login', {
-          email: 'test@user.com',
+          email: 'admin@test.com',
           password: 'invalidPassword!1'
         })
       } catch (err) {
@@ -390,7 +390,7 @@ describe('User Mutation Tests', () => {
     let adminHeaders
 
     before(async () => {
-      const tokens = await loginAndGetTokens({ email: 'test@user.com', password: '123456aA@' })
+      const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
       adminHeaders = { headers: { Authorization: tokens.access_token } }
     })
 
@@ -462,7 +462,7 @@ describe('User Mutation Tests', () => {
     let adminHeaders
 
     before(async () => {
-      const tokens = await loginAndGetTokens({ email: 'test@user.com', password: '123456aA@' })
+      const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
       adminHeaders = { headers: { Authorization: tokens.access_token } }
     })
 
@@ -628,7 +628,7 @@ describe('User Mutation Tests', () => {
 
   describe('POST /users/refresh-token', () => {
     it('refreshes tokens when payload is valid', async () => {
-      const tokens = await loginAndGetTokens({ email: 'test@user.com', password: '123456aA@' })
+      const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
       const response = await api.post('/users/refresh-token', tokens)
 
       expect(response.status).to.equal(200)

@@ -17,7 +17,7 @@ describe('Role-Permission Query Tests', () => {
   let permissionCreatedForTest = false
 
   before(async () => {
-    const tokens = await loginAndGetTokens({ email: 'test@user.com', password: '123456aA@' })
+    const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
     authHeaders = { headers: { Authorization: tokens.access_token } }
 
     const role = await findRoleByName('user', authHeaders)

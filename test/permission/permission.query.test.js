@@ -5,7 +5,7 @@ describe('Permission Query Tests', () => {
   let permissionId
 
   before(async () => {
-    const tokens = await loginAndGetTokens({ email: 'test@user.com', password: '123456aA@' })
+    const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
     authHeaders = { headers: { Authorization: tokens.access_token } }
 
     const response = await api.post('/permissions', { action: 'update', module: 'user' }, authHeaders)

@@ -3,10 +3,10 @@ import { expect, graphqlApi, loginAndGetTokens } from 'test/setup'
 describe('User Query Tests', () => {
   describe('me query', () => {
     it('returns authenticated user details', async () => {
-      const tokens = await loginAndGetTokens({ email: 'test@user.com', password: '123456aA@' })
+      const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
       const query = `
         query {
-          me {
+          user {
             id
             email
             first_name
@@ -23,13 +23,13 @@ describe('User Query Tests', () => {
       )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.me.email).to.equal('test@user.com')
+      expect(response.data.data.me.email).to.equal('admin@test.com')
     })
 
     it('returns error when token is invalid', async () => {
       const query = `
         query {
-          me {
+          user {
             id
             email
           }
@@ -50,7 +50,7 @@ describe('User Query Tests', () => {
     it('returns error when token is missing', async () => {
       const query = `
         query {
-          me {
+          user {
             id
             email
           }
