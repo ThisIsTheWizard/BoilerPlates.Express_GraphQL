@@ -81,11 +81,7 @@ describe('Role Mutation Tests', () => {
       let error
 
       try {
-        await api.put(
-          '/roles/00000000-0000-0000-0000-000000000000',
-          { name: 'admin' },
-          authHeaders
-        )
+        await api.put('/roles/00000000-0000-0000-0000-000000000000', { name: 'admin' }, authHeaders)
       } catch (err) {
         error = err
       }

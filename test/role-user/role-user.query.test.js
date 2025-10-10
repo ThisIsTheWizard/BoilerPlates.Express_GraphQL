@@ -29,11 +29,7 @@ describe('Role-User Query Tests', () => {
       const response = await api.post('/roles', { name: 'moderator' }, authHeaders)
       role = response.data.data
     }
-    const response = await api.post(
-      '/role-users',
-      { role_id: role.id, user_id: user.id },
-      authHeaders
-    )
+    const response = await api.post('/role-users', { role_id: role.id, user_id: user.id }, authHeaders)
     roleUserId = response.data.data.id
   })
 

@@ -1,0 +1,22 @@
+type User {
+  id: ID!
+  email: String!
+  first_name: String
+  last_name: String
+  status: String!
+  created_at: String!
+  updated_at: String!
+}
+
+# This is the root query type. All queries must use extend type Query
+type Query {
+  getUsers: [User!]! @auth(roles: ["admin", "developer"])
+  getAUser(id: ID!): User @auth(roles: ["admin", "developer"])
+}
+
+# This is the root mutation type. All queries must use extend type Mutation
+type Mutation {
+  createUser(input: RegisterInput!): User! @auth(roles: ["admin", "developer"])
+  updateUser(input: UpdateUserInput!): User! @auth(roles: ["admin", "developer"])
+  deleteUser(id: ID!): SuccessResponse! @auth(roles: ["admin", "developer"])
+}

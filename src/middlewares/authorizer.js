@@ -7,13 +7,13 @@ require('dotenv').config()
 import { userHelper } from 'src/modules/helpers'
 
 // Services
-import { userService } from 'src/modules/services'
+import { authService } from 'src/modules/services'
 
 // Utils
 import { CustomError } from 'src/utils/error'
 
 export const validateTokenAndGetAuthUser = async (token = '') => {
-  const { payload } = (await userService.verifyTokenForUser({ token, type: 'access_token' })) || {}
+  const { payload } = (await authService.verifyTokenForUser({ token, type: 'access_token' })) || {}
   if (!size(payload)) {
     throw new CustomError(401, 'INVALID_TOKEN')
   }
@@ -27,8 +27,17 @@ export const validateTokenAndGetAuthUser = async (token = '') => {
   })
 }
 
-export const authorizer = (requiredRoles = ['admin', 'developer', 'moderator', 'user']) => {
+export const authorizer = (roles = []) => {
   const callback = async (req, res, next) => {
+    // Skip auth for GraphiQL
+    if (req.method === 'GET' && req.originalUrl === '/graphql') {
+      return next()
+    }
+    // Skip auth for introspection queries
+    if (req.body?.query?.includes('__schema') || req.body?.query?.includes('IntrospectionQuery')) {
+      return next()
+    }
+
     try {
       const token = req.headers?.authorization || ''
       if (!token) {
@@ -37,8 +46,8 @@ export const authorizer = (requiredRoles = ['admin', 'developer', 'moderator', '
 
       req.user = await validateTokenAndGetAuthUser(token)
 
-      if (requiredRoles.length && !size(intersection(requiredRoles, req.user?.roles))) {
-        throw new Error('MISSING_REQUIRED_ROLES')
+      if (size(roles) && !size(intersection(roles, req.user?.roles))) {
+        throw new Error('UNAUTHORIZED')
       }
 
       return next()

@@ -61,11 +61,7 @@ describe('Permission Mutation Tests', () => {
     })
 
     it('updates a permission successfully', async () => {
-      const response = await api.put(
-        `/permissions/${permissionId}`,
-        { module: 'role_permission' },
-        authHeaders
-      )
+      const response = await api.put(`/permissions/${permissionId}`, { module: 'role_permission' }, authHeaders)
 
       expect(response.status).to.equal(200)
       expect(response.data.data.module).to.equal('role_permission')

@@ -30,9 +30,9 @@ app.use((req, res, next) => {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Welcome to Route
+// Welcome Route
 app.get('/', (req, res) => {
-  res.status(200).json({ message: 'Welcome To Express.js API Server' })
+  res.status(200).json({ message: 'Welcome To Express.js GraphQL API Server' })
 })
 
 // API Routes
@@ -50,9 +50,9 @@ app.use(error)
 const server = http.createServer(app)
 
 connectToPostgresDB()
-  .then(() => {
+  .then(async () => {
     server.listen(process.env.PORT || 8000, () => {
-      console.log(`====> Server is started on ${process.env.PORT || 8000} <=====`)
+      console.log(`====> GraphQL endpoint: http://localhost:${process.env.PORT || 8000}/graphql <=====`)
     })
   })
   .catch((err) => {

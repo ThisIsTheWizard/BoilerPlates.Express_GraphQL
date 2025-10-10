@@ -1,0 +1,29 @@
+type Permission {
+  id: ID!
+  name: String!
+  description: String
+  created_at: String!
+  updated_at: String!
+}
+
+input CreatePermissionInput {
+  name: String!
+  description: String
+}
+
+input UpdatePermissionInput {
+  id: ID!
+  name: String
+  description: String
+}
+
+extend type Query {
+  getPermissions: [Permission!]! @auth(roles: ["admin", "developer"])
+  getAPermission(id: ID!): Permission @auth(roles: ["admin", "developer"])
+}
+
+extend type Mutation {
+  createPermission(input: CreatePermissionInput!): Permission! @auth(roles: ["admin", "developer"])
+  updatePermission(input: UpdatePermissionInput!): Permission! @auth(roles: ["admin", "developer"])
+  deletePermission(id: ID!): SuccessResponse! @auth(roles: ["admin", "developer"])
+}

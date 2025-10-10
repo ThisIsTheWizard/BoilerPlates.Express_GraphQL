@@ -24,11 +24,7 @@ describe('Role-Permission Query Tests', () => {
 
     permission = await findPermissionByAction('read', authHeaders)
     if (!permission) {
-      const response = await api.post(
-        '/permissions',
-        { action: 'read', module: 'role_permission' },
-        authHeaders
-      )
+      const response = await api.post('/permissions', { action: 'read', module: 'role_permission' }, authHeaders)
       permission = response.data.data
       permissionCreatedForTest = true
     }

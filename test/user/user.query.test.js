@@ -1,39 +1,67 @@
-import { api, expect, loginAndGetTokens } from 'test/setup'
+import { expect, graphqlApi, loginAndGetTokens } from 'test/setup'
 
 describe('User Query Tests', () => {
-  describe('GET /users/me', () => {
+  describe('me query', () => {
     it('returns authenticated user details', async () => {
       const tokens = await loginAndGetTokens({ email: 'test@user.com', password: '123456aA@' })
-      const response = await api.get('/users/me', { headers: { Authorization: tokens.access_token } })
+      const query = `
+        query {
+          me {
+            id
+            email
+            first_name
+            last_name
+            status
+          }
+        }
+      `
+
+      const response = await graphqlApi.post(
+        '/graphql',
+        { query },
+        { headers: { Authorization: `Bearer ${tokens.access_token}` } }
+      )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.email).to.equal('test@user.com')
+      expect(response.data.data.me.email).to.equal('test@user.com')
     })
 
-    it('returns 401 when token is invalid', async () => {
-      let error
+    it('returns error when token is invalid', async () => {
+      const query = `
+        query {
+          me {
+            id
+            email
+          }
+        }
+      `
 
-      try {
-        await api.get('/users/me', { headers: { Authorization: 'invalid-token' } })
-      } catch (err) {
-        error = err
-      }
+      const response = await graphqlApi.post(
+        '/graphql',
+        { query },
+        { headers: { Authorization: 'Bearer invalid-token' } }
+      )
 
-      expect(error?.response?.status).to.equal(401)
-      expect(error?.response?.data?.message).to.equal('WHERE_PARAMETER_"USER_ID"_HAS_INVALID_"UNDEFINED"_VALUE')
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('UNAUTHORIZED')
     })
 
-    it('returns 401 when token is missing', async () => {
-      let error
+    it('returns error when token is missing', async () => {
+      const query = `
+        query {
+          me {
+            id
+            email
+          }
+        }
+      `
 
-      try {
-        await api.get('/users/me')
-      } catch (err) {
-        error = err
-      }
+      const response = await graphqlApi.post('/graphql', { query })
 
-      expect(error?.response?.status).to.equal(401)
-      expect(error?.response?.data?.message).to.equal('MISSING_TOKEN')
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('UNAUTHORIZED')
     })
   })
 })

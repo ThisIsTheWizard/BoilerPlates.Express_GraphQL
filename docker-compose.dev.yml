@@ -31,7 +31,7 @@ services:
   node_server:
     build:
       context: .
-      dockerfile: Dockerfile.Prod
+      dockerfile: Dockerfile.Dev
     container_name: node_server_container
     ports:
       - '8000:8000'
@@ -41,10 +41,9 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - node_server_data:/app
+      - .:/app
       - /app/node_modules
 
 volumes:
-  node_server_data:
   postgres_admin_data:
   postgres_data:

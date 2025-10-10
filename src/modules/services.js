@@ -1,5 +1,6 @@
 export * as authTemplateService from 'src/modules/auth-template/auth-template.service'
 export * as authTokenService from 'src/modules/auth-token/auth-token.service'
+export * as authService from 'src/modules/auth/auth.service'
 export * as commonService from 'src/modules/common/common.service'
 export * as notificationService from 'src/modules/notification/notification.service'
 export * as permissionService from 'src/modules/permission/permission.service'

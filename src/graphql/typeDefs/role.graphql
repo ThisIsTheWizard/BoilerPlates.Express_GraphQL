@@ -1,0 +1,29 @@
+type Role {
+  id: ID!
+  name: String!
+  description: String
+  created_at: String!
+  updated_at: String!
+}
+
+input CreateRoleInput {
+  name: String!
+  description: String
+}
+
+input UpdateRoleInput {
+  id: ID!
+  name: String
+  description: String
+}
+
+extend type Query {
+  getARole(id: ID!): Role @auth(roles: ["admin", "developer"])
+  getRoles: [Role!]! @auth(roles: ["admin", "developer"])
+}
+
+extend type Mutation {
+  createRole(input: CreateRoleInput!): Role! @auth(roles: ["admin", "developer"])
+  updateRole(input: UpdateRoleInput!): Role! @auth(roles: ["admin", "developer"])
+  deleteRole(id: ID!): SuccessResponse! @auth(roles: ["admin", "developer"])
+}

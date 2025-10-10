@@ -1,4 +1,4 @@
-import { api, expect, loginAndGetTokens } from 'test/setup'
+import { expect, graphqlApi, loginAndGetTokens } from 'test/setup'
 
 const randomEmail = (prefix) => `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}@example.com`
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -12,7 +12,7 @@ const waitForVerificationToken = async ({ email, status = 'unverified', type }) 
 
   for (let attempt = 0; attempt < 20; attempt += 1) {
     try {
-      const response = await api.get('/test/verification-tokens', { params })
+      const response = await graphqlApi.get('/test/verification-tokens', { params })
       token = response.data.data
       if (token) break
     } catch (error) {
@@ -35,18 +35,48 @@ const waitForVerificationToken = async ({ email, status = 'unverified', type }) 
 
 const registerTestUser = async ({ prefix, password, verify = false }) => {
   const email = randomEmail(prefix)
-  const registerResponse = await api.post('/users/register', {
-    email,
-    first_name: `${prefix}-first`,
-    last_name: `${prefix}-last`,
-    password
+  const registerMutation = `
+    mutation Register($input: RegisterInput!) {
+      register(input: $input) {
+        id
+        email
+        first_name
+        last_name
+        status
+      }
+    }
+  `
+
+  const registerResponse = await graphqlApi.post('/graphql', {
+    query: registerMutation,
+    variables: {
+      input: {
+        email,
+        first_name: `${prefix}-first`,
+        last_name: `${prefix}-last`,
+        password
+      }
+    }
   })
 
-  const registrationData = registerResponse.data.data
+  const registrationData = registerResponse.data.data.register
   const verificationToken = await waitForVerificationToken({ email, type: 'user_verification' })
 
   if (verify) {
-    await api.post('/users/verify-user-email', { email, token: verificationToken.token })
+    const verifyMutation = `
+      mutation VerifyEmail($input: VerifyEmailInput!) {
+        verifyEmail(input: $input) {
+          id
+          status
+        }
+      }
+    `
+    await graphqlApi.post('/graphql', {
+      query: verifyMutation,
+      variables: {
+        input: { email, token: verificationToken.token }
+      }
+    })
   }
 
   return {
@@ -69,36 +99,66 @@ describe('User Mutation Tests', () => {
     context.forgot = await registerTestUser({ prefix: 'forgot', password: 'Forgot123!@#', verify: true })
   })
 
-  describe('POST /users/register', () => {
+  describe('register mutation', () => {
     it('registers a user successfully', async () => {
       const email = randomEmail('new-register')
-      const response = await api.post('/users/register', {
-        email,
-        first_name: 'Register',
-        last_name: 'User',
-        password: 'Register123!@#'
+      const mutation = `
+        mutation Register($input: RegisterInput!) {
+          register(input: $input) {
+            id
+            email
+            first_name
+            last_name
+            status
+          }
+        }
+      `
+
+      const response = await graphqlApi.post('/graphql', {
+        query: mutation,
+        variables: {
+          input: {
+            email,
+            first_name: 'Register',
+            last_name: 'User',
+            password: 'Register123!@#'
+          }
+        }
       })
 
-      expect(response.status).to.equal(201)
-      expect(response.data.data.email).to.equal(email)
+      expect(response.status).to.equal(200)
+      expect(response.data.data.register.email).to.equal(email)
     })
 
     it('returns error when email already exists', async () => {
-      let error
+      const mutation = `
+        mutation Register($input: RegisterInput!) {
+          register(input: $input) {
+            id
+            email
+          }
+        }
+      `
 
+      let error
       try {
-        await api.post('/users/register', {
-          email: context.register.email,
-          first_name: 'Duplicate',
-          last_name: 'User',
-          password: 'Register123!@#'
+        await graphqlApi.post('/graphql', {
+          query: mutation,
+          variables: {
+            input: {
+              email: context.register.email,
+              first_name: 'Duplicate',
+              last_name: 'User',
+              password: 'Register123!@#'
+            }
+          }
         })
       } catch (err) {
         error = err
       }
 
-      expect(error?.response?.status).to.equal(500)
-      expect(error?.response?.data?.message).to.equal('EMAIL_IS_ALREADY_ASSOCIATED_WITH_A_USER')
+      expect(error?.response?.status).to.equal(200)
+      expect(error?.response?.data?.errors?.[0]?.message).to.equal('EMAIL_IS_ALREADY_ASSOCIATED_WITH_A_USER')
     })
   })
 

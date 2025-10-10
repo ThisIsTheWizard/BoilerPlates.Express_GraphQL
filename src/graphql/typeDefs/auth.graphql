@@ -1,0 +1,87 @@
+directive @auth(permission: String, roles: [String!]!) on FIELD_DEFINITION
+
+type AuthPayload {
+  access_token: String!
+  refresh_token: String!
+}
+
+type SuccessResponse {
+  success: Boolean!
+  message: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input RefreshTokenInput {
+  access_token: String!
+  refresh_token: String!
+}
+
+input VerifyEmailInput {
+  email: String!
+  token: String!
+}
+
+input ChangePasswordInput {
+  old_password: String!
+  new_password: String!
+}
+
+input ForgotPasswordInput {
+  email: String!
+}
+
+input ResetPasswordInput {
+  email: String!
+  password: String!
+  token: String!
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+  first_name: String
+  last_name: String
+}
+
+input UpdateUserInput {
+  id: ID!
+  first_name: String
+  last_name: String
+  status: String
+}
+
+extend type Query {
+  user: User @auth(roles: ["admin", "developer", "moderator", "user"])
+}
+
+extend type Mutation {
+  # Authentication
+  register(input: RegisterInput!): User! @auth(roles: ["public"])
+  login(input: LoginInput!): AuthPayload! @auth(roles: ["public"])
+  logout: SuccessResponse! @auth(roles: ["admin", "developer", "moderator", "user"])
+  refreshToken(input: RefreshTokenInput!): AuthPayload! @auth(roles: ["admin", "developer", "moderator", "user"])
+
+  # Password Management
+  changePassword(input: ChangePasswordInput!): SuccessResponse!
+    @auth(roles: ["admin", "developer", "moderator", "user"])
+  forgotPassword(input: ForgotPasswordInput!): SuccessResponse! @auth(roles: ["public"])
+  retryForgotPassword(input: ForgotPasswordInput!): SuccessResponse! @auth(roles: ["public"])
+  verifyForgotPassword(input: ResetPasswordInput!): SuccessResponse! @auth(roles: ["public"])
+  verifyForgotPasswordCode(email: String!, token: String!): SuccessResponse! @auth(roles: ["public"])
+  verifyUserPassword(password: String!): SuccessResponse! @auth(roles: ["admin", "developer", "moderator", "user"])
+
+  # Email Management
+  changeEmail(email: String!): SuccessResponse! @auth(roles: ["admin", "developer", "moderator", "user"])
+  cancelChangeEmail(email: String!): SuccessResponse! @auth(roles: ["admin", "developer", "moderator", "user"])
+  resendVerificationEmail(email: String!): SuccessResponse! @auth(roles: ["public"])
+  verifyChangeEmail(token: String!): User! @auth(roles: ["admin", "developer", "moderator", "user"])
+  verifyEmail(input: VerifyEmailInput!): User! @auth(roles: ["public"])
+
+  # Admin operations
+  setUserEmailByAdmin(user_id: ID!, new_email: String!): User! @auth(roles: ["admin", "developer"])
+  setUserPasswordByAdmin(user_id: ID!, password: String!): SuccessResponse! @auth(roles: ["admin", "developer"])
+}

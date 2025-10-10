@@ -26,11 +26,7 @@ describe('Role-Permission Mutation Tests', () => {
 
     permission = await findPermissionByAction('create', authHeaders)
     if (!permission) {
-      const response = await api.post(
-        '/permissions',
-        { action: 'create', module: 'role_permission' },
-        authHeaders
-      )
+      const response = await api.post('/permissions', { action: 'create', module: 'role_permission' }, authHeaders)
       permission = response.data.data
       permissionCreatedForTest = true
     }
@@ -71,11 +67,7 @@ describe('Role-Permission Mutation Tests', () => {
       let error
 
       try {
-        await api.post(
-          '/role-permissions',
-          { can_do_the_action: true, role_id: roleId },
-          authHeaders
-        )
+        await api.post('/role-permissions', { can_do_the_action: true, role_id: roleId }, authHeaders)
       } catch (err) {
         error = err
       }
@@ -98,11 +90,7 @@ describe('Role-Permission Mutation Tests', () => {
     })
 
     it('updates a role permission successfully', async () => {
-      const response = await api.put(
-        `/role-permissions/${rolePermissionId}`,
-        { can_do_the_action: false },
-        authHeaders
-      )
+      const response = await api.put(`/role-permissions/${rolePermissionId}`, { can_do_the_action: false }, authHeaders)
 
       expect(response.status).to.equal(200)
       expect(response.data.data.can_do_the_action).to.equal(false)

@@ -12,6 +12,8 @@ RUN pnpm i
 
 COPY . .
 
-CMD ["pnpm", "run", "dev"]
+RUN pnpm run lint
+
+CMD ["pnpm", "run", "watch"]
 
 EXPOSE 8000

@@ -8,11 +8,7 @@ describe('Permission Query Tests', () => {
     const tokens = await loginAndGetTokens({ email: 'test@user.com', password: '123456aA@' })
     authHeaders = { headers: { Authorization: tokens.access_token } }
 
-    const response = await api.post(
-      '/permissions',
-      { action: 'update', module: 'user' },
-      authHeaders
-    )
+    const response = await api.post('/permissions', { action: 'update', module: 'user' }, authHeaders)
     permissionId = response.data.data.id
   })
 

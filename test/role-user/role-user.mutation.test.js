@@ -51,11 +51,7 @@ describe('Role-User Mutation Tests', () => {
 
   describe('POST /role-users', () => {
     it('creates a role-user successfully', async () => {
-      const response = await api.post(
-        '/role-users',
-        { role_id: primaryRoleId, user_id: createdUser.id },
-        authHeaders
-      )
+      const response = await api.post('/role-users', { role_id: primaryRoleId, user_id: createdUser.id }, authHeaders)
 
       expect(response.status).to.equal(201)
       expect(response.data.data).to.include({ role_id: primaryRoleId, user_id: createdUser.id })
@@ -79,11 +75,7 @@ describe('Role-User Mutation Tests', () => {
   describe('PUT /role-users/:entity_id', () => {
     before(async () => {
       if (!roleUserId) {
-        const response = await api.post(
-          '/role-users',
-          { role_id: primaryRoleId, user_id: createdUser.id },
-          authHeaders
-        )
+        const response = await api.post('/role-users', { role_id: primaryRoleId, user_id: createdUser.id }, authHeaders)
         roleUserId = response.data.data.id
       }
     })
@@ -120,11 +112,7 @@ describe('Role-User Mutation Tests', () => {
   describe('DELETE /role-users/:entity_id', () => {
     before(async () => {
       if (!roleUserId) {
-        const response = await api.post(
-          '/role-users',
-          { role_id: primaryRoleId, user_id: createdUser.id },
-          authHeaders
-        )
+        const response = await api.post('/role-users', { role_id: primaryRoleId, user_id: createdUser.id }, authHeaders)
         roleUserId = response.data.data.id
       }
     })

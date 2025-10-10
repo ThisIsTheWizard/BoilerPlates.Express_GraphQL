@@ -12,6 +12,8 @@ RUN pnpm i
 
 COPY . .
 
+RUN pnpm run lint
+
 RUN pnpm run build
 
 CMD ["sh", "-c", "node build/server"]
