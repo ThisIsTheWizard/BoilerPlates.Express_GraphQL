@@ -4,8 +4,6 @@ export const seedRolePermissions = async () => {
   const roles = await RoleEntity.findAll({})
   const permissions = await PermissionEntity.findAll({})
 
-  console.log(JSON.parse(JSON.stringify(roles)), JSON.parse(JSON.stringify(permissions)))
-
   const rolePermissions = []
   for (const role of roles) {
     for (const permission of permissions) {
