@@ -1,11 +1,11 @@
 type RoleUser {
-  id: ID!
-  role_id: String!
-  user_id: String!
+  id: ID
+  role_id: String
+  user_id: String
   role: Role
   user: User
-  created_at: String!
-  updated_at: String!
+  created_at: String
+  updated_at: String
 }
 
 input AssignRoleInput {
@@ -15,8 +15,8 @@ input AssignRoleInput {
 
 extend type Query {
   getARoleUser(id: ID!): RoleUser @auth(roles: ["admin", "developer"])
-  getRoleUsers: [RoleUser!]! @auth(roles: ["admin", "developer"])
-  getUserRoles(user_id: ID!): [RoleUser!]! @auth(roles: ["admin", "developer"])
+  getRoleUsers: [RoleUser] @auth(roles: ["admin", "developer"])
+  getUserRoles(user_id: ID!): [RoleUser] @auth(roles: ["admin", "developer"])
 }
 
 extend type Mutation {

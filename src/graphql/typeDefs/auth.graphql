@@ -1,13 +1,13 @@
 directive @auth(permission: String, roles: [String!]!) on FIELD_DEFINITION
 
 type AuthPayload {
-  access_token: String!
-  refresh_token: String!
+  access_token: String
+  refresh_token: String
 }
 
 type SuccessResponse {
-  success: Boolean!
-  message: String!
+  success: Boolean
+  message: String
 }
 
 input LoginInput {

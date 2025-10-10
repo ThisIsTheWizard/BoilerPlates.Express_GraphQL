@@ -1,8 +1,7 @@
 import { userService } from 'src/modules/services'
 import { useTransaction } from 'src/utils/database'
 
-export const userMutation = {
-  // User CRUD
+export default {
   createUser: async (_, { input }) =>
     await useTransaction(async (transaction) => userService.createAUser(input, {}, transaction)),
 

@@ -1,9 +1,9 @@
 type Role {
-  id: ID!
-  name: String!
+  id: ID
+  name: String
   description: String
-  created_at: String!
-  updated_at: String!
+  created_at: String
+  updated_at: String
 }
 
 input CreateRoleInput {
@@ -19,7 +19,7 @@ input UpdateRoleInput {
 
 extend type Query {
   getARole(id: ID!): Role @auth(roles: ["admin", "developer"])
-  getRoles: [Role!]! @auth(roles: ["admin", "developer"])
+  getRoles: [Role] @auth(roles: ["admin", "developer"])
 }
 
 extend type Mutation {

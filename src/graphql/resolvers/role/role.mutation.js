@@ -1,7 +1,7 @@
 import { roleService } from 'src/modules/services'
 import { useTransaction } from 'src/utils/database'
 
-export const roleMutation = {
+export default {
   createRole: async (_, { input }) =>
     await useTransaction(async (transaction) => roleService.createARole(input, {}, transaction)),
 

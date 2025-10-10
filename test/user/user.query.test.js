@@ -1,7 +1,7 @@
 import { expect, graphqlApi, loginAndGetTokens } from 'test/setup'
 
 describe('User Query Tests', () => {
-  describe('me query', () => {
+  describe('auth user query', () => {
     it('returns authenticated user details', async () => {
       const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
       const query = `

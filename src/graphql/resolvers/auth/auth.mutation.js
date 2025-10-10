@@ -1,7 +1,7 @@
 import { authService } from 'src/modules/services'
 import { useTransaction } from 'src/utils/database'
 
-export const authMutation = {
+export default {
   // Authentication
   register: async (_, { input }) =>
     await useTransaction(async (transaction) => authService.registerUser(input, transaction)),

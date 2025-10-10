@@ -1,4 +1,4 @@
-import { sequelize } from 'src/utils/database'
+import { syncEntitiesIntoDatabase } from 'src/modules/entities'
 
 import { seedAuthTemplates } from 'src/utils/seed/auth-template.seed'
 import { seedPermissions } from 'src/utils/seed/permission.seed'
@@ -9,7 +9,7 @@ import { seedTestUsers } from 'src/utils/seed/user.seed'
 export const resetTestDatabase = async () => {
   try {
     // Recreate the database schema
-    await sequelize.sync({ force: true })
+    await syncEntitiesIntoDatabase(true)
 
     await seedAuthTemplates()
     await seedRoles()

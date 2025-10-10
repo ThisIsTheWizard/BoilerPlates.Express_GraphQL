@@ -1,12 +1,7 @@
 import { roleUserHelper } from 'src/modules/helpers'
-import { useTransaction } from 'src/utils/database'
 
-export const roleUserQuery = {
-  getRoleUsers: async () => await useTransaction(async (transaction) => roleUserHelper.getRoleUsers({}, transaction)),
-
-  getARoleUser: async (_, { id }) =>
-    await useTransaction(async (transaction) => roleUserHelper.getARoleUser({ where: { id } }, transaction)),
-
-  getUserRoles: async (_, { user_id }) =>
-    await useTransaction(async (transaction) => roleUserHelper.getRoleUsers({ where: { user_id } }, transaction))
+export default {
+  getRoleUsers: async () => roleUserHelper.getRoleUsers({}),
+  getARoleUser: async (_, { id }) => roleUserHelper.getARoleUser({ where: { id } }),
+  getUserRoles: async (_, { user_id }) => roleUserHelper.getRoleUsers({ where: { user_id } })
 }

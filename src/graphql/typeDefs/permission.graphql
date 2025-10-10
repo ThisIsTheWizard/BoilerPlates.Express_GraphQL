@@ -1,9 +1,9 @@
 type Permission {
-  id: ID!
-  name: String!
+  id: ID
+  name: String
   description: String
-  created_at: String!
-  updated_at: String!
+  created_at: String
+  updated_at: String
 }
 
 input CreatePermissionInput {
@@ -18,7 +18,7 @@ input UpdatePermissionInput {
 }
 
 extend type Query {
-  getPermissions: [Permission!]! @auth(roles: ["admin", "developer"])
+  getPermissions: [Permission] @auth(roles: ["admin", "developer"])
   getAPermission(id: ID!): Permission @auth(roles: ["admin", "developer"])
 }
 

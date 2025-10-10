@@ -1,17 +1,7 @@
 import { rolePermissionHelper } from 'src/modules/helpers'
-import { useTransaction } from 'src/utils/database'
 
-export const rolePermissionQuery = {
-  getRolePermissions: async () =>
-    await useTransaction(async (transaction) => rolePermissionHelper.getRolePermissions({}, transaction)),
-
-  getARolePermission: async (_, { id }) =>
-    await useTransaction(async (transaction) =>
-      rolePermissionHelper.getARolePermission({ where: { id } }, transaction)
-    ),
-
-  getRolePermissionsByRole: async (_, { role_id }) =>
-    await useTransaction(async (transaction) =>
-      rolePermissionHelper.getRolePermissions({ where: { role_id } }, transaction)
-    )
+export default {
+  getRolePermissions: async () => rolePermissionHelper.getRolePermissions({}),
+  getARolePermission: async (_, { id }) => rolePermissionHelper.getARolePermission({ where: { id } }),
+  getRolePermissionsByRole: async (_, { role_id }) => rolePermissionHelper.getRolePermissions({ where: { role_id } })
 }

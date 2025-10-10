@@ -1,7 +1,7 @@
 import { rolePermissionService } from 'src/modules/services'
 import { useTransaction } from 'src/utils/database'
 
-export const rolePermissionMutation = {
+export default {
   assignPermission: async (_, { input }) =>
     await useTransaction(async (transaction) => rolePermissionService.createARolePermission(input, {}, transaction)),
 

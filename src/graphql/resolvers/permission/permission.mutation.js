@@ -1,7 +1,7 @@
 import { permissionService } from 'src/modules/services'
 import { useTransaction } from 'src/utils/database'
 
-export const permissionMutation = {
+export default {
   createPermission: async (_, { input }) =>
     await useTransaction(async (transaction) => permissionService.createAPermission(input, {}, transaction)),
 

@@ -1,16 +1,16 @@
 type User {
-  id: ID!
-  email: String!
+  id: ID
+  email: String
   first_name: String
   last_name: String
-  status: String!
-  created_at: String!
-  updated_at: String!
+  status: String
+  created_at: String
+  updated_at: String
 }
 
 # This is the root query type. All queries must use extend type Query
 type Query {
-  getUsers: [User!]! @auth(roles: ["admin", "developer"])
+  getUsers: [User] @auth(roles: ["admin", "developer"])
   getAUser(id: ID!): User @auth(roles: ["admin", "developer"])
 }
 

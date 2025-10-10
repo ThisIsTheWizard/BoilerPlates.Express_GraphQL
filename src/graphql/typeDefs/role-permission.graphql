@@ -1,11 +1,11 @@
 type RolePermission {
-  id: ID!
-  role_id: String!
-  permission_id: String!
+  id: ID
+  role_id: String
+  permission_id: String
   role: Role
   permission: Permission
-  created_at: String!
-  updated_at: String!
+  created_at: String
+  updated_at: String
 }
 
 input AssignPermissionInput {
@@ -14,9 +14,9 @@ input AssignPermissionInput {
 }
 
 extend type Query {
-  getRolePermissions: [RolePermission!]! @auth(roles: ["admin", "developer"])
+  getRolePermissions: [RolePermission] @auth(roles: ["admin", "developer"])
   getARolePermission(id: ID!): RolePermission @auth(roles: ["admin", "developer"])
-  getRolePermissionsByRole(role_id: ID!): [RolePermission!]! @auth(roles: ["admin", "developer"])
+  getRolePermissionsByRole(role_id: ID!): [RolePermission] @auth(roles: ["admin", "developer"])
 }
 
 extend type Mutation {

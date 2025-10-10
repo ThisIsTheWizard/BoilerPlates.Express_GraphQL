@@ -63,15 +63,19 @@ UserEntity.hasMany(VerificationTokenEntity, { foreignKey: 'user_id' })
 VerificationTokenEntity.belongsTo(UserEntity, { foreignKey: 'user_id' })
 
 // Have to sync parent entity first because of foreign key constraints
-export const syncEntitiesIntoDatabase = async () => {
-  await AuthTemplateEntity.sync({ alter: true })
-  await UserEntity.sync({ alter: true })
-  await AuthTokenEntity.sync({ alter: true })
-  await VerificationTokenEntity.sync({ alter: true })
-  await RoleEntity.sync({ alter: true })
-  await RoleUserEntity.sync({ alter: true })
-  await PermissionEntity.sync({ alter: true })
-  await RolePermissionEntity.sync({ alter: true })
+export const syncEntitiesIntoDatabase = async (force = false) => {
+  const syncOption = {}
+  if (force) syncOption.force = true
+  else syncOption.alter = true
+
+  await AuthTemplateEntity.sync(syncOption)
+  await UserEntity.sync(syncOption)
+  await AuthTokenEntity.sync(syncOption)
+  await VerificationTokenEntity.sync(syncOption)
+  await RoleEntity.sync(syncOption)
+  await RoleUserEntity.sync(syncOption)
+  await PermissionEntity.sync(syncOption)
+  await RolePermissionEntity.sync(syncOption)
 }
 
 // Sync entities into database
