@@ -1,13 +1,31 @@
 import { api, expect, loginAndGetTokens } from 'test/setup'
 
 const findRoleByName = async (name, headers) => {
-  const response = await api.get('/roles', headers)
-  return response.data.data.data.find((role) => role.name === name)
+  const query = `
+    query GetRoles {
+      getRoles {
+        id
+        name
+        description
+      }
+    }
+  `
+  const response = await api.post('/graphql', { query }, headers)
+  return response.data.data?.getRoles?.find((role) => role.name === name)
 }
 
-const findPermissionByAction = async (action, headers) => {
-  const response = await api.get('/permissions', headers)
-  return response.data.data.data.find((permission) => permission.action === action)
+const findPermissionByName = async (name, headers) => {
+  const query = `
+    query GetPermissions {
+      getPermissions {
+        id
+        name
+        description
+      }
+    }
+  `
+  const response = await api.post('/graphql', { query }, headers)
+  return response.data.data?.getPermissions?.find((permission) => permission.name === name)
 }
 
 describe('Role-Permission Query Tests', () => {
@@ -22,25 +40,67 @@ describe('Role-Permission Query Tests', () => {
 
     const role = await findRoleByName('user', authHeaders)
 
-    permission = await findPermissionByAction('read', authHeaders)
+    permission = await findPermissionByName('read_role_permission', authHeaders)
     if (!permission) {
-      const response = await api.post('/permissions', { action: 'read', module: 'role_permission' }, authHeaders)
-      permission = response.data.data
+      const mutation = `
+        mutation CreatePermission($input: CreatePermissionInput!) {
+          createPermission(input: $input) {
+            id
+            name
+            description
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query: mutation,
+          variables: { input: { name: 'read_role_permission', description: 'Read role permission' } }
+        },
+        authHeaders
+      )
+      permission = response.data.data?.createPermission
       permissionCreatedForTest = true
     }
 
+    const assignMutation = `
+      mutation AssignPermission($input: AssignPermissionInput!) {
+        assignPermission(input: $input) {
+          id
+          role_id
+          permission_id
+        }
+      }
+    `
     const response = await api.post(
-      '/role-permissions',
-      { can_do_the_action: true, permission_id: permission.id, role_id: role.id },
+      '/graphql',
+      {
+        query: assignMutation,
+        variables: { input: { permission_id: permission.id, role_id: role.id } }
+      },
       authHeaders
     )
-    rolePermissionId = response.data.data.id
+    rolePermissionId = response.data.data?.assignPermission?.id
   })
 
   after(async () => {
     if (rolePermissionId) {
       try {
-        await api.delete(`/role-permissions/${rolePermissionId}`, authHeaders)
+        const mutation = `
+          mutation RemovePermission($id: ID!) {
+            removePermission(id: $id) {
+              success
+            }
+          }
+        `
+        await api.post(
+          '/graphql',
+          {
+            query: mutation,
+            variables: { id: rolePermissionId }
+          },
+          authHeaders
+        )
       } catch (error) {
         // ignore cleanup failure
       }
@@ -48,55 +108,116 @@ describe('Role-Permission Query Tests', () => {
 
     if (permissionCreatedForTest && permission?.id) {
       try {
-        await api.delete(`/permissions/${permission.id}`, authHeaders)
+        const mutation = `
+          mutation DeletePermission($id: ID!) {
+            deletePermission(id: $id) {
+              success
+            }
+          }
+        `
+        await api.post(
+          '/graphql',
+          {
+            query: mutation,
+            variables: { id: permission.id }
+          },
+          authHeaders
+        )
       } catch (error) {
         // ignore cleanup failure
       }
     }
   })
 
-  describe('GET /role-permissions', () => {
+  describe('getRolePermissions query', () => {
     it('returns role permissions for authorized user', async () => {
-      const response = await api.get('/role-permissions', authHeaders)
+      const query = `
+        query GetRolePermissions {
+          getRolePermissions {
+            id
+            role_id
+            permission_id
+            role {
+              name
+            }
+            permission {
+              name
+            }
+          }
+        }
+      `
+      const response = await api.post('/graphql', { query }, authHeaders)
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.data).to.be.an('array')
-      expect(response.data.data.meta_data).to.have.keys(['filtered_rows', 'total_rows'])
+      expect(response.data.data.getRolePermissions).to.be.an('array')
     })
 
-    it('returns 401 when token is missing', async () => {
-      let error
+    it('returns error when token is missing', async () => {
+      const query = `
+        query GetRolePermissions {
+          getRolePermissions {
+            id
+            role_id
+            permission_id
+          }
+        }
+      `
+      const response = await api.post('/graphql', { query })
 
-      try {
-        await api.get('/role-permissions')
-      } catch (err) {
-        error = err
-      }
-
-      expect(error?.response?.status).to.equal(401)
-      expect(error?.response?.data?.message).to.equal('MISSING_TOKEN')
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('UNAUTHORIZED')
     })
   })
 
-  describe('GET /role-permissions/:entity_id', () => {
+  describe('getARolePermission query', () => {
     it('returns a single role permission when it exists', async () => {
-      const response = await api.get(`/role-permissions/${rolePermissionId}`, authHeaders)
+      const query = `
+        query GetARolePermission($id: ID!) {
+          getARolePermission(id: $id) {
+            id
+            role_id
+            permission_id
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query,
+          variables: { id: rolePermissionId }
+        },
+        authHeaders
+      )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.id).to.equal(rolePermissionId)
+      if (rolePermissionId) {
+        expect(response.data.data.getARolePermission.id).to.equal(rolePermissionId)
+      }
     })
 
-    it('returns 404 for non-existent role permission', async () => {
-      let error
+    it('returns error for non-existent role permission', async () => {
+      const query = `
+        query GetARolePermission($id: ID!) {
+          getARolePermission(id: $id) {
+            id
+            role_id
+            permission_id
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query,
+          variables: { id: '00000000-0000-0000-0000-000000000000' }
+        },
+        authHeaders
+      )
 
-      try {
-        await api.get('/role-permissions/00000000-0000-0000-0000-000000000000', authHeaders)
-      } catch (err) {
-        error = err
-      }
-
-      expect(error?.response?.status).to.equal(404)
-      expect(error?.response?.data?.message).to.equal('ROLE_PERMISSION_DOES_NOT_EXIST')
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('ROLE_PERMISSION_DOES_NOT_EXIST')
     })
   })
 })

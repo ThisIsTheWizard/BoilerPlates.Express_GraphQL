@@ -7,7 +7,6 @@ import { CustomError } from 'src/utils/error'
 
 export function authDirective(directiveName = 'auth') {
   return {
-    authDirectiveTypeDefs: `directive @${directiveName}(roles: [String!]) on FIELD_DEFINITION`,
     authDirectiveTransformer: (schema) =>
       mapSchema(schema, {
         [MapperKind.OBJECT_FIELD]: (fieldConfig) => {

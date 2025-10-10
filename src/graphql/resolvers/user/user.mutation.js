@@ -1,9 +1,9 @@
-import { userService } from 'src/modules/services'
+import { authService, userService } from 'src/modules/services'
 import { useTransaction } from 'src/utils/database'
 
 export default {
   createUser: async (_, { input }) =>
-    await useTransaction(async (transaction) => userService.createAUser(input, {}, transaction)),
+    await useTransaction(async (transaction) => authService.registerUser(input, transaction)),
 
   updateUser: async (_, { input }) => {
     const { id, ...data } = input

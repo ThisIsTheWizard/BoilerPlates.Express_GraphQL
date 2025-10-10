@@ -364,7 +364,7 @@ export const changePasswordByUser = async (params = {}, transaction) => {
   }
   // Check for old passwords
   if (!commonService.compareHashPassword(old_password, user?.password)) {
-    throw new Error('OLD_PASSWORD_IS_INCORRECT')
+    throw new Error('PASSWORD_IS_INCORRECT')
   }
   if (commonService.checkOldPasswords(new_password, user?.old_passwords)) {
     throw new Error('PASSWORD_IS_ALREADY_USED_BEFORE')

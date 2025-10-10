@@ -8,52 +8,98 @@ describe('Role Query Tests', () => {
     const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
     authHeaders = { headers: { Authorization: tokens.access_token } }
 
-    const response = await api.get('/roles', authHeaders)
-    anyRole = response.data.data.data[0]
+    const query = `
+      query GetRoles {
+        getRoles {
+          id
+          name
+          description
+        }
+      }
+    `
+    const response = await api.post('/graphql', { query }, authHeaders)
+    anyRole = response.data.data.getRoles[0]
   })
 
-  describe('GET /roles', () => {
+  describe('getRoles query', () => {
     it('returns roles for authorized user', async () => {
-      const response = await api.get('/roles', authHeaders)
+      const query = `
+        query GetRoles {
+          getRoles {
+            id
+            name
+            description
+          }
+        }
+      `
+      const response = await api.post('/graphql', { query }, authHeaders)
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.data).to.be.an('array')
-      expect(response.data.data.meta_data).to.have.keys(['filtered_rows', 'total_rows'])
+      expect(response.data.data.getRoles).to.be.an('array')
     })
 
-    it('returns 401 when token is missing', async () => {
-      let error
+    it('returns error when token is missing', async () => {
+      const query = `
+        query GetRoles {
+          getRoles {
+            id
+            name
+          }
+        }
+      `
+      const response = await api.post('/graphql', { query })
 
-      try {
-        await api.get('/roles')
-      } catch (err) {
-        error = err
-      }
-
-      expect(error?.response?.status).to.equal(401)
-      expect(error?.response?.data?.message).to.equal('MISSING_TOKEN')
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('UNAUTHORIZED')
     })
   })
 
-  describe('GET /roles/:entity_id', () => {
+  describe('getARole query', () => {
     it('returns a single role when it exists', async () => {
-      const response = await api.get(`/roles/${anyRole.id}`, authHeaders)
+      const query = `
+        query GetARole($id: ID!) {
+          getARole(id: $id) {
+            id
+            name
+            description
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query,
+          variables: { id: anyRole.id }
+        },
+        authHeaders
+      )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.id).to.equal(anyRole.id)
+      expect(response.data.data.getARole.id).to.equal(anyRole.id)
     })
 
-    it('returns 404 for non-existent role', async () => {
-      let error
+    it('returns error for non-existent role', async () => {
+      const query = `
+        query GetARole($id: ID!) {
+          getARole(id: $id) {
+            id
+            name
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query,
+          variables: { id: '00000000-0000-0000-0000-000000000000' }
+        },
+        authHeaders
+      )
 
-      try {
-        await api.get('/roles/00000000-0000-0000-0000-000000000000', authHeaders)
-      } catch (err) {
-        error = err
-      }
-
-      expect(error?.response?.status).to.equal(404)
-      expect(error?.response?.data?.message).to.equal('ROLE_DOES_NOT_EXIST')
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('ROLE_DOES_NOT_EXIST')
     })
   })
 })

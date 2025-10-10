@@ -1,6 +1,6 @@
 import { roleHelper } from 'src/modules/helpers'
 
 export default {
-  getRoles: async () => roleHelper.getRoles({}),
-  getARole: async (_, { id }) => roleHelper.getARole({ where: { id } })
+  getARole: async (_, { id }) => roleHelper.getARoleForQuery({ entity_id: id }),
+  getRoles: async (_, input) => roleHelper.getRolesForQuery(input)
 }

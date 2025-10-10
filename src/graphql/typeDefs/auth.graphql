@@ -63,7 +63,7 @@ extend type Mutation {
   register(input: RegisterInput!): User! @auth(roles: ["public"])
   login(input: LoginInput!): AuthPayload! @auth(roles: ["public"])
   logout: SuccessResponse! @auth(roles: ["admin", "developer", "moderator", "user"])
-  refreshToken(input: RefreshTokenInput!): AuthPayload! @auth(roles: ["admin", "developer", "moderator", "user"])
+  refreshToken(input: RefreshTokenInput!): AuthPayload @auth(roles: ["public"])
 
   # Password Management
   changePassword(input: ChangePasswordInput!): SuccessResponse!

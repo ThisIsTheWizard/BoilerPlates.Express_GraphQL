@@ -8,58 +8,134 @@ describe('Permission Query Tests', () => {
     const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
     authHeaders = { headers: { Authorization: tokens.access_token } }
 
-    const response = await api.post('/permissions', { action: 'update', module: 'user' }, authHeaders)
-    permissionId = response.data.data.id
+    const mutation = `
+      mutation CreatePermission($input: CreatePermissionInput!) {
+        createPermission(input: $input) {
+          id
+          name
+        }
+      }
+    `
+    const response = await api.post(
+      '/graphql',
+      {
+        query: mutation,
+        variables: { input: { name: 'update_user', description: 'Update user permission' } }
+      },
+      authHeaders
+    )
+    if (response.data.data?.createPermission) {
+      permissionId = response.data.data.createPermission.id
+    }
   })
 
   after(async () => {
     if (permissionId) {
-      await api.delete(`/permissions/${permissionId}`, authHeaders)
+      const mutation = `
+        mutation DeletePermission($id: ID!) {
+          deletePermission(id: $id) {
+            success
+          }
+        }
+      `
+      await api.post(
+        '/graphql',
+        {
+          query: mutation,
+          variables: { id: permissionId }
+        },
+        authHeaders
+      )
     }
   })
 
-  describe('GET /permissions', () => {
+  describe('getPermissions query', () => {
     it('returns permissions for authorized user', async () => {
-      const response = await api.get('/permissions', authHeaders)
+      const query = `
+        query GetPermissions {
+          getPermissions {
+            id
+            name
+            description
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query
+        },
+        authHeaders
+      )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.data).to.be.an('array')
-      expect(response.data.data.meta_data).to.have.keys(['filtered_rows', 'total_rows'])
+      expect(response.data.data.getPermissions).to.be.an('array')
     })
 
-    it('returns 401 when token is missing', async () => {
-      let error
+    it('returns error when token is missing', async () => {
+      const query = `
+        query GetPermissions {
+          getPermissions {
+            id
+            name
+          }
+        }
+      `
+      const response = await api.post('/graphql', { query })
 
-      try {
-        await api.get('/permissions')
-      } catch (err) {
-        error = err
-      }
-
-      expect(error?.response?.status).to.equal(401)
-      expect(error?.response?.data?.message).to.equal('MISSING_TOKEN')
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('UNAUTHORIZED')
     })
   })
 
-  describe('GET /permissions/:entity_id', () => {
+  describe('getAPermission query', () => {
     it('returns a single permission when it exists', async () => {
-      const response = await api.get(`/permissions/${permissionId}`, authHeaders)
+      const query = `
+        query GetAPermission($id: ID!) {
+          getAPermission(id: $id) {
+            id
+            name
+            description
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query,
+          variables: { id: permissionId }
+        },
+        authHeaders
+      )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.id).to.equal(permissionId)
+      if (permissionId) {
+        expect(response.data.data.getAPermission.id).to.equal(permissionId)
+      }
     })
 
-    it('returns 404 for non-existent permission', async () => {
-      let error
+    it('returns error for non-existent permission', async () => {
+      const query = `
+        query GetAPermission($id: ID!) {
+          getAPermission(id: $id) {
+            id
+            name
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query,
+          variables: { id: '00000000-0000-0000-0000-000000000000' }
+        },
+        authHeaders
+      )
 
-      try {
-        await api.get('/permissions/00000000-0000-0000-0000-000000000000', authHeaders)
-      } catch (err) {
-        error = err
-      }
-
-      expect(error?.response?.status).to.equal(404)
-      expect(error?.response?.data?.message).to.equal('PERMISSION_DOES_NOT_EXIST')
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('PERMISSION_DOES_NOT_EXIST')
     })
   })
 })

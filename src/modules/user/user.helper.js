@@ -35,7 +35,14 @@ export const prepareGetUsersQuery = (params) => {
 export const getAUserForQuery = async (query) => {
   commonHelper.checkRequiredFields(['entity_id'], query)
 
-  return getAUser({ attributes: ['id', 'email', 'first_name', 'last_name', 'status'], where: { id: query.entity_id } })
+  const user = await getAUser({
+    attributes: ['id', 'email', 'first_name', 'last_name', 'status'],
+    where: { id: query.entity_id }
+  })
+  if (!user?.id) {
+    throw new Error('USER_DOES_NOT_EXIST')
+  }
+  return user
 }
 
 export const getUsersForQuery = async (params) => {

@@ -38,4 +38,4 @@ before(async () => {
   }
 })
 
-export { authToken, expect, graphqlApi, loginAndGetTokens }
+export { authToken, expect, graphqlApi as api, loginAndGetTokens }

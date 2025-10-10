@@ -1,8 +1,17 @@
 import { api, expect, loginAndGetTokens } from 'test/setup'
 
 const findRoleByName = async (name, headers) => {
-  const response = await api.get('/roles', headers)
-  return response.data.data.data.find((role) => role.name === name)
+  const query = `
+    query GetRoles {
+      getRoles {
+        id
+        name
+        description
+      }
+    }
+  `
+  const response = await api.post('/graphql', { query }, headers)
+  return response.data.data?.getRoles?.find((role) => role.name === name)
 }
 
 describe('Role Mutation Tests', () => {
@@ -18,19 +27,48 @@ describe('Role Mutation Tests', () => {
     const existing = await findRoleByName('moderator', authHeaders)
     if (!existing) {
       try {
-        await api.post('/roles', { name: 'moderator' }, authHeaders)
+        const mutation = `
+          mutation CreateRole($input: CreateRoleInput!) {
+            createRole(input: $input) {
+              id
+              name
+            }
+          }
+        `
+        await api.post(
+          '/graphql',
+          {
+            query: mutation,
+            variables: { input: { name: 'moderator' } }
+          },
+          authHeaders
+        )
       } catch (error) {
         // ignore restore failure
       }
     }
   })
 
-  describe('POST /roles', () => {
+  describe('createRole mutation', () => {
     before(async () => {
       const existing = await findRoleByName('moderator', authHeaders)
       if (existing) {
         try {
-          await api.delete(`/roles/${existing.id}`, authHeaders)
+          const mutation = `
+            mutation DeleteRole($id: ID!) {
+              deleteRole(id: $id) {
+                success
+              }
+            }
+          `
+          await api.post(
+            '/graphql',
+            {
+              query: mutation,
+              variables: { id: existing.id }
+            },
+            authHeaders
+          )
         } catch (error) {
           // ignore cleanup failure
         }
@@ -38,89 +76,250 @@ describe('Role Mutation Tests', () => {
     })
 
     it('creates a role successfully', async () => {
-      const response = await api.post('/roles', { name: 'moderator' }, authHeaders)
+      const mutation = `
+        mutation CreateRole($input: CreateRoleInput!) {
+          createRole(input: $input) {
+            id
+            name
+            description
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query: mutation,
+          variables: { input: { name: 'moderator' } }
+        },
+        authHeaders
+      )
 
-      expect(response.status).to.equal(201)
-      expect(response.data.data).to.include({ name: 'moderator' })
-      createdRole = response.data.data
+      expect(response.status).to.equal(200)
+      expect(response.data.data.createRole).to.include({ name: 'moderator' })
+      createdRole = response.data.data.createRole
     })
 
     it('returns error when name is missing', async () => {
-      let error
+      const mutation = `
+        mutation CreateRole($input: CreateRoleInput!) {
+          createRole(input: $input) {
+            id
+            name
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query: mutation,
+          variables: { input: {} }
+        },
+        authHeaders
+      )
 
-      try {
-        await api.post('/roles', {}, authHeaders)
-      } catch (err) {
-        error = err
-      }
+      expect(response.status).to.equal(400)
+      expect(response.data.errors).to.exist
+    })
 
-      expect(error?.response?.status).to.equal(500)
-      expect(error?.response?.data?.message).to.equal('MISSING_NAME')
+    it('returns error when not authorized', async () => {
+      const mutation = `
+        mutation CreateRole($input: CreateRoleInput!) {
+          createRole(input: $input) {
+            id
+            name
+          }
+        }
+      `
+      const response = await api.post('/graphql', {
+        query: mutation,
+        variables: { input: { name: 'test' } }
+      })
+
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('UNAUTHORIZED')
     })
   })
 
-  describe('PUT /roles/:entity_id', () => {
+  describe('updateRole mutation', () => {
     before(async () => {
       if (!createdRole?.id) {
         createdRole = await findRoleByName('moderator', authHeaders)
       }
       if (!createdRole?.id) {
-        const response = await api.post('/roles', { name: 'moderator' }, authHeaders)
-        createdRole = response.data.data
+        const mutation = `
+          mutation CreateRole($input: CreateRoleInput!) {
+            createRole(input: $input) {
+              id
+              name
+            }
+          }
+        `
+        const response = await api.post(
+          '/graphql',
+          {
+            query: mutation,
+            variables: { input: { name: 'moderator' } }
+          },
+          authHeaders
+        )
+        createdRole = response.data.data.createRole
       }
     })
 
     it('updates a role successfully', async () => {
-      const response = await api.put(`/roles/${createdRole.id}`, { name: 'moderator' }, authHeaders)
+      const mutation = `
+        mutation UpdateRole($input: UpdateRoleInput!) {
+          updateRole(input: $input) {
+            id
+            name
+            description
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query: mutation,
+          variables: { input: { id: createdRole.id, name: 'moderator', description: 'Updated moderator role' } }
+        },
+        authHeaders
+      )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.id).to.equal(createdRole.id)
+      expect(response.data.data.updateRole.id).to.equal(createdRole.id)
     })
 
-    it('returns 404 for unknown role', async () => {
-      let error
+    it('returns error for unknown role', async () => {
+      const mutation = `
+        mutation UpdateRole($input: UpdateRoleInput!) {
+          updateRole(input: $input) {
+            id
+            name
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query: mutation,
+          variables: { input: { id: '00000000-0000-0000-0000-000000000000', name: 'admin' } }
+        },
+        authHeaders
+      )
 
-      try {
-        await api.put('/roles/00000000-0000-0000-0000-000000000000', { name: 'admin' }, authHeaders)
-      } catch (err) {
-        error = err
-      }
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('ROLE_NOT_FOUND')
+    })
 
-      expect(error?.response?.status).to.equal(404)
-      expect(error?.response?.data?.message).to.equal('ROLE_NOT_FOUND')
+    it('returns error when not authorized', async () => {
+      const mutation = `
+        mutation UpdateRole($input: UpdateRoleInput!) {
+          updateRole(input: $input) {
+            id
+            name
+          }
+        }
+      `
+      const response = await api.post('/graphql', {
+        query: mutation,
+        variables: { input: { id: createdRole.id, name: 'test' } }
+      })
+
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('UNAUTHORIZED')
     })
   })
 
-  describe('DELETE /roles/:entity_id', () => {
+  describe('deleteRole mutation', () => {
     before(async () => {
       if (!createdRole?.id) {
         createdRole = await findRoleByName('moderator', authHeaders)
       }
       if (!createdRole?.id) {
-        const response = await api.post('/roles', { name: 'moderator' }, authHeaders)
-        createdRole = response.data.data
+        const mutation = `
+          mutation CreateRole($input: CreateRoleInput!) {
+            createRole(input: $input) {
+              id
+              name
+            }
+          }
+        `
+        const response = await api.post(
+          '/graphql',
+          {
+            query: mutation,
+            variables: { input: { name: 'moderator' } }
+          },
+          authHeaders
+        )
+        createdRole = response.data.data.createRole
       }
     })
 
     it('deletes a role successfully', async () => {
-      const response = await api.delete(`/roles/${createdRole.id}`, authHeaders)
+      const mutation = `
+        mutation DeleteRole($id: ID!) {
+          deleteRole(id: $id) {
+            success
+            message
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query: mutation,
+          variables: { id: createdRole.id }
+        },
+        authHeaders
+      )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.id).to.equal(createdRole.id)
+      expect(response.data.data.deleteRole.success).to.equal(true)
       createdRole = null
     })
 
-    it('returns 404 when role does not exist', async () => {
-      let error
+    it('returns error when role does not exist', async () => {
+      const mutation = `
+        mutation DeleteRole($id: ID!) {
+          deleteRole(id: $id) {
+            success
+          }
+        }
+      `
+      const response = await api.post(
+        '/graphql',
+        {
+          query: mutation,
+          variables: { id: '00000000-0000-0000-0000-000000000000' }
+        },
+        authHeaders
+      )
 
-      try {
-        await api.delete('/roles/00000000-0000-0000-0000-000000000000', authHeaders)
-      } catch (err) {
-        error = err
-      }
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('ROLE_NOT_FOUND')
+    })
 
-      expect(error?.response?.status).to.equal(404)
-      expect(error?.response?.data?.message).to.equal('ROLE_NOT_FOUND')
+    it('returns error when not authorized', async () => {
+      const mutation = `
+        mutation DeleteRole($id: ID!) {
+          deleteRole(id: $id) {
+            success
+          }
+        }
+      `
+      const response = await api.post('/graphql', {
+        query: mutation,
+        variables: { id: '00000000-0000-0000-0000-000000000000' }
+      })
+
+      expect(response.status).to.equal(200)
+      expect(response.data.errors).to.exist
+      expect(response.data.errors[0].message).to.equal('UNAUTHORIZED')
     })
   })
 })
