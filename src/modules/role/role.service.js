@@ -53,7 +53,13 @@ export const updateARoleForMutation = async (params, transaction) => {
     ],
     params
   )
-  commonHelper.validateProps([{ field: 'name', required: false, type: 'string' }], params?.data)
+  commonHelper.validateProps(
+    [
+      { field: 'name', required: false, type: 'string' },
+      { field: 'description', required: false, type: 'string' }
+    ],
+    params?.data
+  )
 
   return updateARole({ where: { id: params?.entity_id } }, params?.data, transaction)
 }

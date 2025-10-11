@@ -62,11 +62,11 @@ export const createARolePermissionForMutation = async (params, user, transaction
     transaction
   )
   if (existingRolePerm?.id) {
-    throw new CustomError(400, 'ROLE_PERMISSION_ALREADY_EXISTS')
+    return existingRolePerm
   }
 
   const rolePermission = await createARolePermission(
-    { can_do_the_action, permission_id, role_id, created_by: user.id },
+    { can_do_the_action, permission_id, role_id, created_by: user?.user_id },
     null,
     transaction
   )

@@ -68,6 +68,23 @@ export const updateAPermissionForMutation = async (params, transaction) => {
     params?.data
   )
 
+  // Fetch current permission
+  const current = await PermissionEntity.findOne({ where: { id: params?.entity_id }, transaction })
+  if (!current?.id) {
+    throw new CustomError(404, 'PERMISSION_NOT_FOUND')
+  }
+
+  // Calculate target state and short-circuit if equivalent exists
+  const targetAction = params?.data?.action || current.action
+  const targetModule = params?.data?.module || current.module
+  const existing = await PermissionEntity.findOne({
+    where: { action: targetAction, module: targetModule },
+    transaction
+  })
+  if (existing?.id && existing.id !== current.id) {
+    return existing
+  }
+
   return updateAPermission({ where: { id: params?.entity_id } }, params?.data, transaction)
 }
 

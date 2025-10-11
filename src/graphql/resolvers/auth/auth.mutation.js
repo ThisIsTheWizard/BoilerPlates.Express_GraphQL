@@ -21,14 +21,23 @@ export default {
     await useTransaction(async (transaction) => authService.refreshTokensForUser(args?.input, transaction)),
 
   logout: async (parent, args, context) => {
-    await useTransaction(async (transaction) => authService.logoutAUser({ ...args?.input, ...context }, transaction))
+    await useTransaction(async (transaction) =>
+      authService.logoutAUser({ token: context?.token, type: 'access_token' }, transaction)
+    )
     return { success: true, message: 'LOGGED_OUT' }
   },
 
   // Password Management
   changePassword: async (parent, args, context) => {
     await useTransaction(async (transaction) =>
-      authService.changePasswordByUser({ ...args?.input, ...context?.user }, transaction)
+      authService.changePasswordByUser(
+        {
+          new_password: args?.input?.new_password,
+          old_password: args?.input?.old_password,
+          user_id: context?.user?.id
+        },
+        transaction
+      )
     )
     return { success: true, message: 'SUCCESS' }
   },
