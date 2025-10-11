@@ -4,16 +4,15 @@ services:
     container_name: postgres_container
     env_file:
       - .env
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 10s
+      retries: 5
     ports:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
 
   postgres_admin:
     image: dpage/pgadmin4
@@ -24,7 +23,8 @@ services:
     ports:
       - '4000:80'
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - postgres_admin_data:/var/lib/pgadmin
 

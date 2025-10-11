@@ -40,16 +40,9 @@ input ResetPasswordInput {
 
 input RegisterInput {
   email: String!
+  first_name: String!
+  last_name: String!
   password: String!
-  first_name: String
-  last_name: String
-}
-
-input UpdateUserInput {
-  id: ID!
-  first_name: String
-  last_name: String
-  status: String
 }
 
 extend type Query {

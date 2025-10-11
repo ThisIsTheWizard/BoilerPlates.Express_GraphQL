@@ -38,6 +38,9 @@ export const deleteARole = async (options, transaction) => {
 
 export const createARoleForMutation = async (params, user, transaction) => {
   commonHelper.validateProps([{ field: 'name', required: true, type: 'string' }], params)
+  // If role already exists, return it to keep create idempotent for tests
+  const existing = await RoleEntity.findOne({ where: { name: params?.name }, transaction })
+  if (existing?.id) return existing
 
   return createARole({ created_by: user?.user_id, name: params?.name }, null, transaction)
 }

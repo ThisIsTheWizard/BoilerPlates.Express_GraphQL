@@ -28,7 +28,7 @@ export const GQLServer = new ApolloServer({
 
               if (size(exception)) {
                 err.message = exception.message || err?.message || 'INTERNAL SERVER ERROR'
-                err.statusCode = exception.statusCode || 500
+                // Intentionally avoid setting HTTP status to keep GraphQL responses at 200
               }
             }
           }

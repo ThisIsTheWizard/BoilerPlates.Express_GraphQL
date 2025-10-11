@@ -5,8 +5,10 @@ import { expect } from 'chai'
 import { resetTestDatabase } from 'src/utils/seed'
 
 const graphqlApi = axios.create({
-  baseURL: `http://node_server_test:${process.env.PORT || 8000}/graphql`,
-  timeout: 10000
+  baseURL: `http://node_server_test:${process.env.PORT || 8000}`,
+  timeout: 10000,
+  // Always resolve; tests assert on status codes and bodies, including 400s
+  validateStatus: () => true
 })
 
 const loginAndGetTokens = async ({ email, password }) => {
@@ -38,4 +40,4 @@ before(async () => {
   }
 })
 
-export { authToken, expect, graphqlApi as api, loginAndGetTokens }
+export { graphqlApi as api, authToken, expect, loginAndGetTokens }

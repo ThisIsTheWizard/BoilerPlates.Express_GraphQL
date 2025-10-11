@@ -26,8 +26,7 @@ describe('User Query Tests', () => {
           input: {
             email: randomEmail('query-test'),
             first_name: 'Query',
-            last_name: 'Test',
-            password: 'Test123!@#'
+            last_name: 'Test'
           }
         }
       },

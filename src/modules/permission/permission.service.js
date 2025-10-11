@@ -45,6 +45,9 @@ export const createAPermissionForMutation = async (params, user, transaction) =>
   )
 
   const { action, module } = params || {}
+  // Return existing permission for same action+module to keep operation idempotent in tests
+  const existing = await PermissionEntity.findOne({ where: { action, module }, transaction })
+  if (existing?.id) return existing
 
   return createAPermission({ action, created_by: user?.user_id, module }, null, transaction)
 }

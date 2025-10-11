@@ -32,8 +32,9 @@ export const PermissionEntity = sequelize.define(
       { fields: ['id'], unique: true },
       { fields: ['created_at'] },
       { fields: ['created_by'] },
-      { fields: ['action'], unique: true },
+      { fields: ['action'] },
       { fields: ['module'] },
+      { fields: ['action', 'module'], unique: true },
       { fields: ['updated_at'] }
     ],
     timestamps: true,

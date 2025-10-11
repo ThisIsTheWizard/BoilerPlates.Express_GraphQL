@@ -57,8 +57,7 @@ describe('User Mutation Tests', () => {
             input: {
               email,
               first_name: 'Test',
-              last_name: 'User',
-              password: 'Test123!@#'
+              last_name: 'User'
             }
           }
         },
@@ -85,8 +84,7 @@ describe('User Mutation Tests', () => {
           input: {
             email: randomEmail('unauthorized'),
             first_name: 'Test',
-            last_name: 'User',
-            password: 'Test123!@#'
+            last_name: 'User'
           }
         }
       })
@@ -113,8 +111,7 @@ describe('User Mutation Tests', () => {
             input: {
               email: 'admin@test.com',
               first_name: 'Duplicate',
-              last_name: 'User',
-              password: 'Test123!@#'
+              last_name: 'User'
             }
           }
         },
