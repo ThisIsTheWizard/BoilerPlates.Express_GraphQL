@@ -10,7 +10,9 @@ export default {
     await useTransaction(async (transaction) => authService.verifyUserEmail(args?.input, transaction)),
 
   resendVerificationEmail: async (parent, args) => {
-    await useTransaction(async (transaction) => authService.resendUserVerificationEmail(args?.input, transaction))
+    await useTransaction(async (transaction) =>
+      authService.resendUserVerificationEmail({ email: args?.email }, transaction)
+    )
     return { success: true, message: 'SUCCESS' }
   },
 
@@ -58,15 +60,13 @@ export default {
   },
 
   verifyForgotPasswordCode: async (parent, args) => {
-    const result = await useTransaction(async (transaction) =>
-      authService.verifyForgotPasswordCode(args?.input, transaction)
-    )
+    const result = await useTransaction(async (transaction) => authService.verifyForgotPasswordCode(args, transaction))
     return { success: result.success, message: result.message }
   },
 
   verifyUserPassword: async (parent, args, context) => {
     const result = await useTransaction(async (transaction) =>
-      authService.verifyUserPassword({ ...args?.input, ...context?.user }, transaction)
+      authService.verifyUserPassword({ password: args?.password, user_id: context?.user?.id }, transaction)
     )
     return { success: result.success, message: result.message }
   },
@@ -74,27 +74,29 @@ export default {
   // Email Management
   changeEmail: async (parent, args, context) => {
     await useTransaction(async (transaction) =>
-      authService.changeEmailByUser({ ...args?.input, ...context?.user }, transaction)
+      authService.changeEmailByUser({ new_email: args?.email, user_id: context?.user?.id }, transaction)
     )
     return { success: true, message: 'SUCCESS' }
   },
 
   cancelChangeEmail: async (parent, args) => {
-    await useTransaction(async (transaction) => authService.cancelChangeEmailByUser(args?.input, transaction))
+    await useTransaction(async (transaction) =>
+      authService.cancelChangeEmailByUser({ email: args?.email }, transaction)
+    )
     return { success: true, message: 'SUCCESS' }
   },
 
   verifyChangeEmail: async (parent, args, context) =>
     await useTransaction(async (transaction) =>
-      authService.verifyChangeEmailByUser({ ...args?.input, ...context?.user }, transaction)
+      authService.verifyChangeEmailByUser({ token: args?.token, user_id: context?.user?.id }, transaction)
     ),
 
   // Admin operations
   setUserEmailByAdmin: async (parent, args) =>
-    await useTransaction(async (transaction) => authService.setUserEmailByAdmin(args?.input, transaction)),
+    await useTransaction(async (transaction) => authService.setUserEmailByAdmin(args, transaction)),
 
   setUserPasswordByAdmin: async (parent, args) => {
-    await useTransaction(async (transaction) => authService.changePasswordByAdmin(args?.input, transaction))
+    await useTransaction(async (transaction) => authService.changePasswordByAdmin(args, transaction))
     return { success: true, message: 'SUCCESS' }
   }
 }

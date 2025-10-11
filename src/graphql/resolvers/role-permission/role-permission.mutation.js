@@ -9,7 +9,11 @@ export default {
 
   updateRolePermission: async (parent, args, context) =>
     await useTransaction(async (transaction) =>
-      rolePermissionService.updateARolePermissionForMutation(args?.input, context?.user, transaction)
+      rolePermissionService.updateARolePermissionForMutation(
+        { entity_id: args?.input?.entity_id, can_do_the_action: args?.input?.data?.can_do_the_action },
+        context?.user,
+        transaction
+      )
     ),
 
   removePermission: async (parent, args) =>
