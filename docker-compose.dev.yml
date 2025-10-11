@@ -40,6 +40,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    init: true
     volumes:
       - .:/app
       - /app/node_modules

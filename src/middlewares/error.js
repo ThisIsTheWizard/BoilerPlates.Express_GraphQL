@@ -6,6 +6,8 @@ const formatErrorMessage = (str) => {
 
 // eslint-disable-next-line max-params
 export const error = (error, req, res, next) => {
+  console.log('Error middleware received error:', error)
+
   if (res.headersSent) {
     return next(error)
   }
