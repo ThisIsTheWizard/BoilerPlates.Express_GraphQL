@@ -1,3 +1,16 @@
+type AuthUser {
+  id: ID
+  email: String
+  first_name: String
+  last_name: String
+  permissions: [String]
+  role: String
+  roles: [Role]
+  status: String
+  created_at: String
+  updated_at: String
+}
+
 type AuthPayload {
   access_token: String
   refresh_token: String
@@ -46,7 +59,7 @@ input RegisterInput {
 }
 
 extend type Query {
-  user: User @auth(roles: ["admin", "developer", "moderator", "user"])
+  user: AuthUser @auth(roles: ["admin", "developer", "moderator", "user"])
 }
 
 extend type Mutation {

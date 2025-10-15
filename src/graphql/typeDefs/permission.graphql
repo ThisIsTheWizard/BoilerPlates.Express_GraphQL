@@ -1,8 +1,9 @@
 type Permission {
   id: ID
   action: String
-  module: String
   created_at: String
+  module: String
+  role_permissions: RolePermission
   updated_at: String
 }
 

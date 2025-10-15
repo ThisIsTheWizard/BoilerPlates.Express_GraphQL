@@ -8,7 +8,6 @@ import { RoleEntity } from 'src/modules/entities'
 import { commonHelper } from 'src/modules/helpers'
 
 // Utils
-import { sequelize } from 'src/utils/database'
 import { CustomError } from 'src/utils/error'
 
 export const countRoles = async (options) => RoleEntity.count(options)
@@ -39,19 +38,7 @@ export const getARoleForQuery = async (query) => {
   commonHelper.validateRequiredProps(['entity_id'], query)
 
   const role = await getARole({
-    include: [
-      {
-        association: 'permissions',
-        attributes: [
-          'id',
-          'action',
-          'module',
-          [sequelize.literal('"permissions->role_permissions"."can_do_the_action"'), 'can_do_the_action'],
-          [sequelize.literal('"permissions->role_permissions"."id"'), 'role_permission_id']
-        ],
-        through: { attributes: ['id', 'can_do_the_action'] }
-      }
-    ],
+    include: [{ association: 'permissions', through: { attributes: ['id', 'can_do_the_action'] } }],
     order: [
       ['permissions', 'module', 'ASC'],
       ['permissions', 'action', 'ASC']
@@ -71,6 +58,7 @@ export const getRolesForQuery = async (params) => {
 
   const where = prepareRoleQuery(query)
   const data = await getRoles({
+    include: [{ association: 'permissions', through: { attributes: ['id', 'can_do_the_action'] } }],
     limit,
     offset,
     order,

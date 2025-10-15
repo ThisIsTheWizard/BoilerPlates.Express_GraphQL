@@ -18,7 +18,17 @@ import { connectToPostgresDB } from 'src/utils/database'
 const app = express()
 
 // Using CORS for cross site origin issue
-app.use(cors({ origin: '*' }))
+app.use(
+  cors({
+    origin: (reqOrigin, cb) => {
+      if (!reqOrigin) return cb(null, true) // same-origin / curl
+      const allowed = ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://host.docker.internal:3000']
+      return cb(null, allowed.includes(reqOrigin))
+    },
+    credentials: true,
+    exposedHeaders: ['Authorization']
+  })
+)
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', '*')
   res.setHeader('Access-Control-Allow-Methods', '*')

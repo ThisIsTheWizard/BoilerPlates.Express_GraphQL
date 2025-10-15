@@ -71,8 +71,18 @@ export const getAuthUserWithRolesAndPermissions = async ({ roles, user_id }) => 
   const user = await getAUser({
     attributes: ['id', 'email', 'first_name', 'last_name', 'status'],
     include: [
-      { association: 'roles', include: [{ association: 'permissions' }], where: { name: { [Op.in]: roles || [] } } }
+      {
+        association: 'roles',
+        include: [
+          {
+            association: 'permissions',
+            through: { attributes: ['can_do_the_action'] }
+          }
+        ],
+        where: { name: { [Op.in]: roles || [] } }
+      }
     ],
+    subQuery: false,
     where: { id: user_id }
   })
   if (!user?.id) {
@@ -81,13 +91,12 @@ export const getAuthUserWithRolesAndPermissions = async ({ roles, user_id }) => 
 
   const result = JSON.parse(JSON.stringify(user))
 
-  result.roles = map(user?.roles, 'name')
-  result.role = roleHelper.getTopRoleOfAUser(user.roles || [])
+  result.role_names = map(result?.roles, 'name')
+  result.role = roleHelper.getTopRoleOfAUser(result.role_names)
 
-  const permissions = find(user?.roles, (role) => role?.name === user.role)?.permissions || []
   const userPermissions = []
-  for (const permission of permissions) {
-    if (permission?.can_do_the_action) {
+  for (const permission of find(result?.roles, (role) => role?.name === result.role)?.permissions || []) {
+    if (permission?.role_permissions?.can_do_the_action) {
       userPermissions.push(`${permission.module}.${permission.action}`)
     }
   }

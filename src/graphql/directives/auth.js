@@ -27,7 +27,7 @@ export function authDirective(directiveName = 'auth') {
               }
 
               // Check role requirements
-              if (!size(intersection(roles || [], user?.roles || []))) {
+              if (!size(intersection(roles || [], user?.role_names || []))) {
                 throw new CustomError(401, 'UNAUTHORIZED')
               }
               // Check permission requirements

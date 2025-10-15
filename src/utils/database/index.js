@@ -6,6 +6,9 @@ require('dotenv').config()
 // CustomError
 import { CustomError } from 'src/utils/error'
 
+// Seeders
+// import { resetTestDatabase } from 'src/utils/seed'
+
 export const sequelize = new Sequelize(process.env.POSTGRES_URL, {
   dialect: 'postgres',
   // Please uncomment below lines for secured connection
@@ -17,6 +20,8 @@ export const sequelize = new Sequelize(process.env.POSTGRES_URL, {
 export const connectToPostgresDB = async () => {
   try {
     await sequelize.authenticate()
+
+    // await resetTestDatabase()
 
     console.log('Connection has been established successfully to database')
   } catch (error) {

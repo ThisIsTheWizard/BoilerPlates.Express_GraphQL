@@ -8,20 +8,20 @@ type RolePermission {
 }
 
 input CreateRolePermissionInput {
-  role_id: String!
-  permission_id: String!
   can_do_the_action: Boolean!
+  permission_id: String!
+  role_id: String!
 }
 
 input UpdateRolePermissionInput {
-  entity_id: ID!
   data: CreateRolePermissionInput
+  entity_id: ID!
 }
 
 input RolePermissionQuery {
-  role_id: String
-  permission_id: String
   can_do_the_action: Boolean
+  permission_id: String
+  role_id: String
 }
 
 type RolePermissionQuerySchema {

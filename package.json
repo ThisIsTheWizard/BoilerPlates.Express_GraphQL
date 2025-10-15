@@ -8,7 +8,7 @@
   "scripts": {
     "build": "rm -rf ./build && npm run lint && babel src -d build --copy-files",
     "compose:dev-down": "docker compose -f docker-compose.dev.yml down -v",
-    "compose:dev-up": "docker compose -f docker-compose.dev.yml up --build node_server",
+    "compose:dev-up": "docker compose -f docker-compose.dev.yml up -d --build",
     "compose:prod-down": "docker compose -f docker-compose.prod.yml down -v",
     "compose:prod-up": "docker compose -f docker-compose.prod.yml up -d --build",
     "compose:test-down": "docker compose -f docker-compose.test.yml down -v --remove-orphans",
