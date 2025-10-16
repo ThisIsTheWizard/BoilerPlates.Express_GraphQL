@@ -3,7 +3,6 @@ type Permission {
   action: String
   created_at: String
   module: String
-  role_permissions: RolePermission
   updated_at: String
 }
 

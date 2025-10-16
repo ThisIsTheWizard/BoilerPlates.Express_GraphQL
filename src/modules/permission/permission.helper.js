@@ -5,10 +5,9 @@ import { Op } from 'sequelize'
 import { PermissionEntity } from 'src/modules/entities'
 
 // Helpers
-import { commonHelper, rolePermissionHelper } from 'src/modules/helpers'
+import { commonHelper } from 'src/modules/helpers'
 
 // Utils
-import { sequelize } from 'src/utils/database'
 import { CustomError } from 'src/utils/error'
 
 export const countPermissions = async (options, transaction) => PermissionEntity.count({ ...options, transaction })
@@ -34,18 +33,7 @@ export const preparePermissionQuery = (params = {}) => {
   return query
 }
 
-export const getPermissionAssociation = (where = {}) => [
-  {
-    association: 'roles',
-    attributes: [
-      'id',
-      'name',
-      [sequelize.literal('"roles->role_permissions"."can_do_the_action"'), 'can_do_the_action'],
-      [sequelize.literal('"roles->role_permissions"."id"'), 'role_permission_id']
-    ],
-    through: { attributes: ['id', 'can_do_the_action'], where }
-  }
-]
+export const getPermissionAssociation = () => [{ association: 'roles' }]
 
 export const getAPermissionForQuery = async (query) => {
   commonHelper.validateRequiredProps(['entity_id'], query)
@@ -65,10 +53,8 @@ export const getPermissionsForQuery = async (params) => {
   const { options, query } = params || {}
   const { limit, offset, order } = options || {}
 
+  const include = getPermissionAssociation()
   const where = preparePermissionQuery(query)
-  const rolePermissionQuery = rolePermissionHelper.prepareRolePermissionQuery(query)
-
-  const include = getPermissionAssociation(rolePermissionQuery)
   const permissions = await getPermissions({
     include,
     limit,

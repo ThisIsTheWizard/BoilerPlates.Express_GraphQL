@@ -82,7 +82,7 @@ describe('Role-Permission Query Tests', () => {
       '/graphql',
       {
         query: assignMutation,
-        variables: { input: { permission_id: permission.id, role_id: role.id, can_do_the_action: true } }
+        variables: { input: { permission_id: permission.id, role_id: role.id } }
       },
       authHeaders
     )
@@ -93,8 +93,8 @@ describe('Role-Permission Query Tests', () => {
     if (rolePermissionId) {
       try {
         const mutation = `
-          mutation RemovePermission($entity_id: ID!) {
-            removePermission(entity_id: $entity_id) {
+          mutation RevokePermission($entity_id: ID!) {
+            revokePermission(entity_id: $entity_id) {
               id
             }
           }

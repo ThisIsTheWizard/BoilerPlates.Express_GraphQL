@@ -77,74 +77,27 @@ describe('Role-Permission Mutation Tests', () => {
       if (!rolePermissionId) {
         const assignMutation = `
           mutation AssignPermission($input: CreateRolePermissionInput!) {
-            assignPermission(input: $input) { id role_id permission_id can_do_the_action }
+            assignPermission(input: $input) { id role_id permission_id }
           }
         `
         const assignRes = await api.post(
           '/graphql',
-          { query: assignMutation, variables: { input: { role_id: roleId, permission_id: permission.id, can_do_the_action: true } } },
+          {
+            query: assignMutation,
+            variables: { input: { role_id: roleId, permission_id: permission.id } }
+          },
           authHeaders
         )
         rolePermissionId = assignRes.data.data.assignPermission.id
       }
     })
 
-    it('updates can_do_the_action successfully', async () => {
-      const mutation = `
-        mutation UpdateRolePermission($input: UpdateRolePermissionInput!) {
-          updateRolePermission(input: $input) { id can_do_the_action }
-        }
-      `
-      const res = await api.post(
-        '/graphql',
-        { query: mutation, variables: { input: { entity_id: rolePermissionId, data: { role_id: roleId, permission_id: permission.id, can_do_the_action: false } } } },
-        authHeaders
-      )
-
-      expect(res.status).to.equal(200)
-      expect(res.data.data.updateRolePermission.can_do_the_action).to.equal(false)
-    })
-
-    it('returns error when role-permission does not exist', async () => {
-      const mutation = `
-        mutation UpdateRolePermission($input: UpdateRolePermissionInput!) {
-          updateRolePermission(input: $input) { id }
-        }
-      `
-      const res = await api.post(
-        '/graphql',
-        { query: mutation, variables: { input: { entity_id: '00000000-0000-0000-0000-000000000000', data: { can_do_the_action: true, role_id: roleId, permission_id: permission.id } } } },
-        authHeaders
-      )
-
-      expect(res.status).to.equal(200)
-      expect(res.data.errors).to.exist
-      expect(res.data.errors[0].message).to.equal('ROLE_PERMISSION_NOT_FOUND')
-    })
-
-    it('returns unauthorized without token', async () => {
-      const mutation = `
-        mutation UpdateRolePermission($input: UpdateRolePermissionInput!) {
-          updateRolePermission(input: $input) { id }
-        }
-      `
-      const res = await api.post('/graphql', {
-        query: mutation,
-        variables: { input: { entity_id: rolePermissionId, data: { can_do_the_action: true, role_id: roleId, permission_id: permission.id } } }
-      })
-
-      expect(res.status).to.equal(200)
-      expect(res.data.errors).to.exist
-      expect(res.data.errors[0].message).to.equal('UNAUTHORIZED')
-    })
-  })
-
   after(async () => {
     if (rolePermissionId) {
       try {
         const mutation = `
-          mutation RemovePermission($entity_id: ID!) {
-            removePermission(entity_id: $entity_id) {
+          mutation RevokePermission($input: RolePermissionInput!) {
+            revokePermission(input: $input) {
               id
             }
           }
@@ -200,7 +153,7 @@ describe('Role-Permission Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { input: { permission_id: permission.id, role_id: roleId, can_do_the_action: true } }
+          variables: { input: { permission_id: permission.id, role_id: roleId } }
         },
         authHeaders
       )
@@ -224,7 +177,7 @@ describe('Role-Permission Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { input: { role_id: roleId, can_do_the_action: true } }
+          variables: { input: { role_id: roleId } }
         },
         authHeaders
       )
@@ -245,7 +198,7 @@ describe('Role-Permission Mutation Tests', () => {
       `
       const response = await api.post('/graphql', {
         query: mutation,
-        variables: { input: { permission_id: permission.id, role_id: roleId, can_do_the_action: true } }
+        variables: { input: { permission_id: permission.id, role_id: roleId } }
       })
 
       expect(response.status).to.equal(200)
@@ -254,7 +207,7 @@ describe('Role-Permission Mutation Tests', () => {
     })
   })
 
-  describe('removePermission mutation', () => {
+  describe('revokePermission mutation', () => {
     before(async () => {
       if (!rolePermissionId) {
         const mutation = `
@@ -270,7 +223,7 @@ describe('Role-Permission Mutation Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { input: { permission_id: permission.id, role_id: roleId, can_do_the_action: true } }
+            variables: { input: { permission_id: permission.id, role_id: roleId } }
           },
           authHeaders
         )
@@ -281,8 +234,8 @@ describe('Role-Permission Mutation Tests', () => {
     it('deletes a role permission successfully', async () => {
       const targetId = rolePermissionId
       const mutation = `
-        mutation RemovePermission($entity_id: ID!) {
-          removePermission(entity_id: $entity_id) {
+        mutation RevokePermission($entity_id: ID!) {
+          revokePermission(entity_id: $entity_id) {
             id
           }
         }
@@ -297,14 +250,14 @@ describe('Role-Permission Mutation Tests', () => {
       )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.removePermission.id).to.equal(targetId)
+      expect(response.data.data.revokePermission.id).to.equal(targetId)
       rolePermissionId = null
     })
 
     it('returns error when role permission does not exist', async () => {
       const mutation = `
-        mutation RemovePermission($entity_id: ID!) {
-          removePermission(entity_id: $entity_id) {
+        mutation RevokePermission($entity_id: ID!) {
+          revokePermission(entity_id: $entity_id) {
             id
           }
         }
@@ -325,8 +278,8 @@ describe('Role-Permission Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation RemovePermission($entity_id: ID!) {
-          removePermission(entity_id: $entity_id) {
+        mutation RevokePermission($entity_id: ID!) {
+          revokePermission(entity_id: $entity_id) {
             id
           }
         }

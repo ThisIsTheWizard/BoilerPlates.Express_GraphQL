@@ -34,15 +34,13 @@ export const prepareRoleQuery = (params = {}) => {
   return query
 }
 
+export const getRoleAssociation = () => [{ association: 'permissions' }, { association: 'users' }]
+
 export const getARoleForQuery = async (query) => {
   commonHelper.validateRequiredProps(['entity_id'], query)
 
   const role = await getARole({
-    include: [{ association: 'permissions', through: { attributes: ['id', 'can_do_the_action'] } }],
-    order: [
-      ['permissions', 'module', 'ASC'],
-      ['permissions', 'action', 'ASC']
-    ],
+    include: getRoleAssociation(),
     where: { id: query.entity_id }
   })
   if (!role?.id) {
@@ -58,7 +56,7 @@ export const getRolesForQuery = async (params) => {
 
   const where = prepareRoleQuery(query)
   const data = await getRoles({
-    include: [{ association: 'permissions', through: { attributes: ['id', 'can_do_the_action'] } }],
+    include: getRoleAssociation(),
     limit,
     offset,
     order,

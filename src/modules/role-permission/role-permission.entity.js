@@ -11,6 +11,10 @@ export const RolePermissionEntity = sequelize.define(
       primaryKey: true,
       type: DataTypes.UUID
     },
+    created_by: {
+      allowNull: true,
+      type: DataTypes.UUID
+    },
     role_id: {
       allowNull: false,
       onDelete: 'CASCADE',
@@ -19,15 +23,6 @@ export const RolePermissionEntity = sequelize.define(
     permission_id: {
       allowNull: false,
       onDelete: 'CASCADE',
-      type: DataTypes.UUID
-    },
-    can_do_the_action: {
-      allowNull: false,
-      defaultValue: false,
-      type: DataTypes.BOOLEAN
-    },
-    created_by: {
-      allowNull: true,
       type: DataTypes.UUID
     },
     updated_by: {

@@ -92,8 +92,8 @@ describe('Role-User Query Tests', () => {
     if (roleUserId) {
       try {
         const mutation = `
-          mutation RemoveRole($entity_id: ID!) {
-            removeRole(entity_id: $entity_id) {
+          mutation RevokeRole($entity_id: ID!) {
+            revokeRole(entity_id: $entity_id) {
               id
             }
           }

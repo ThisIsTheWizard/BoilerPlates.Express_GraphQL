@@ -10,22 +10,29 @@ export const seedTestUsers = async () => {
     [
       {
         email: 'admin@test.com',
-        first_name: 'Test',
-        last_name: 'User 1',
+        first_name: 'Admin',
+        last_name: 'Test',
         password: hashedPassword,
         status: 'active'
       },
       {
-        email: 'test-1@test.com',
-        first_name: 'Test',
-        last_name: 'User 1',
+        email: 'developer@test.com',
+        first_name: 'Developer',
+        last_name: 'Test',
         password: hashedPassword,
         status: 'active'
       },
       {
-        email: 'test-2@test.com',
+        email: 'moderator@test.com',
+        first_name: 'Moderator',
+        last_name: 'Test',
+        password: hashedPassword,
+        status: 'active'
+      },
+      {
+        email: 'user@test.com',
         first_name: 'Test',
-        last_name: 'User 2',
+        last_name: 'User',
         password: hashedPassword,
         status: 'active'
       }
@@ -37,7 +44,14 @@ export const seedTestUsers = async () => {
   const role_users = []
   for (const user of users) {
     for (const role of roles) {
-      role_users.push({ role_id: role?.id, user_id: user?.id })
+      if (
+        (user.email === 'admin@test.com' && role.name === 'admin') ||
+        (user.email === 'developer@test.com' && role.name === 'developer') ||
+        (user.email === 'moderator@test.com' && role.name === 'moderator') ||
+        (user.email === 'user@test.com' && role.name === 'user')
+      ) {
+        role_users.push({ role_id: role?.id, user_id: user?.id })
+      }
     }
   }
 

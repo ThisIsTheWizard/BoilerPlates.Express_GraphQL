@@ -38,14 +38,13 @@ export const deleteARolePermission = async (options, transaction) => {
 export const createARolePermissionForMutation = async (params, user, transaction) => {
   commonHelper.validateProps(
     [
-      { field: 'can_do_the_action', required: true, type: 'boolean' },
       { field: 'permission_id', required: true, type: 'string' },
       { field: 'role_id', required: true, type: 'string' }
     ],
     params
   )
 
-  const { can_do_the_action, permission_id, role_id } = params || {}
+  const { permission_id, role_id } = params || {}
 
   const role = await roleHelper.getARole({ where: { id: role_id } }, transaction)
   if (!role?.id) {
@@ -66,7 +65,7 @@ export const createARolePermissionForMutation = async (params, user, transaction
   }
 
   const rolePermission = await createARolePermission(
-    { can_do_the_action, permission_id, role_id, created_by: user?.user_id },
+    { permission_id, role_id, created_by: user?.user_id },
     null,
     transaction
   )
@@ -74,26 +73,14 @@ export const createARolePermissionForMutation = async (params, user, transaction
   return rolePermission
 }
 
-export const updateARolePermissionForMutation = async (params, user, transaction) => {
+export const deleteARolePermissionForMutation = async (where, transaction) => {
   commonHelper.validateProps(
     [
-      { field: 'entity_id', required: true, type: 'string' },
-      { field: 'can_do_the_action', required: true, type: 'boolean' }
+      { field: 'permission_id', required: true, type: 'string' },
+      { field: 'role_id', required: true, type: 'string' }
     ],
-    params
+    where
   )
 
-  const { entity_id, can_do_the_action } = params || {}
-
-  return updateARolePermission(
-    { where: { id: entity_id } },
-    { can_do_the_action, updated_by: user?.user_id },
-    transaction
-  )
-}
-
-export const deleteARolePermissionForMutation = async (params, transaction) => {
-  commonHelper.validateProps([{ field: 'entity_id', required: true, type: 'string' }], params)
-
-  return deleteARolePermission({ where: { id: params?.entity_id } }, transaction)
+  return deleteARolePermission({ where }, transaction)
 }

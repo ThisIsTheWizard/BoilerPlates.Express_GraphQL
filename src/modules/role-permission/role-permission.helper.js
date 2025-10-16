@@ -1,4 +1,4 @@
-import { isBoolean, size } from 'lodash'
+import { size } from 'lodash'
 import { Op } from 'sequelize'
 
 // Entities
@@ -34,9 +34,6 @@ export const prepareRolePermissionQuery = (params) => {
   }
   if (params?.permission_id) {
     query.permission_id = params.permission_id
-  }
-  if (isBoolean(params?.can_do_the_action)) {
-    query.can_do_the_action = params.can_do_the_action
   }
 
   return query

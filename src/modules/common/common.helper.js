@@ -99,5 +99,5 @@ export const validatePhoneNumber = (phoneNumber = '') => validator.isMobilePhone
 
 export const validateUserPermission = ({ action, module, permissions = {} } = {}) => {
   const permission = find(permissions?.[module] || [], (perm) => perm?.action === action)
-  return !!permission?.can_do_the_action
+  return !!permission?.id
 }

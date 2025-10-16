@@ -119,7 +119,10 @@ describe('Role-User Mutation Tests', () => {
       `
       const res = await api.post(
         '/graphql',
-        { query: mutation, variables: { input: { entity_id: ru.id, data: { role_id: moderatorRole.id, user_id: newUser.id } } } },
+        {
+          query: mutation,
+          variables: { input: { entity_id: ru.id, data: { role_id: moderatorRole.id, user_id: newUser.id } } }
+        },
         authHeaders
       )
 
@@ -178,8 +181,8 @@ describe('Role-User Mutation Tests', () => {
     if (roleUserId) {
       try {
         const mutation = `
-          mutation RemoveRole($entity_id: ID!) {
-            removeRole(entity_id: $entity_id) {
+          mutation RevokeRole($entity_id: ID!) {
+            revokeRole(entity_id: $entity_id) {
               id
             }
           }
@@ -267,7 +270,7 @@ describe('Role-User Mutation Tests', () => {
     })
   })
 
-  describe('removeRole mutation', () => {
+  describe('revokeRole mutation', () => {
     before(async () => {
       if (!roleUserId) {
         const mutation = `
@@ -294,8 +297,8 @@ describe('Role-User Mutation Tests', () => {
     it('deletes a role-user successfully', async () => {
       const targetId = roleUserId
       const mutation = `
-        mutation RemoveRole($entity_id: ID!) {
-          removeRole(entity_id: $entity_id) {
+        mutation RevokeRole($entity_id: ID!) {
+          revokeRole(entity_id: $entity_id) {
             id
           }
         }
@@ -310,14 +313,14 @@ describe('Role-User Mutation Tests', () => {
       )
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.removeRole.id).to.equal(targetId)
+      expect(response.data.data.revokeRole.id).to.equal(targetId)
       roleUserId = null
     })
 
     it('returns error when role-user does not exist', async () => {
       const mutation = `
-        mutation RemoveRole($entity_id: ID!) {
-          removeRole(entity_id: $entity_id) {
+        mutation RevokeRole($entity_id: ID!) {
+          revokeRole(entity_id: $entity_id) {
             id
           }
         }
@@ -338,8 +341,8 @@ describe('Role-User Mutation Tests', () => {
 
     it('returns error when not authorized', async () => {
       const mutation = `
-        mutation RemoveRole($entity_id: ID!) {
-          removeRole(entity_id: $entity_id) {
+        mutation RevokeRole($entity_id: ID!) {
+          revokeRole(entity_id: $entity_id) {
             id
           }
         }

@@ -4,24 +4,13 @@ import {} from 'lodash'
 import { RoleUserEntity } from 'src/modules/entities'
 
 // Helpers
-import { commonHelper, roleHelper, roleUserHelper } from 'src/modules/helpers'
+import { commonHelper, roleHelper, roleUserHelper, userHelper } from 'src/modules/helpers'
 
 // Services
 import { roleUserService } from 'src/modules/services'
 
 // Utils
 import { CustomError } from 'src/utils/error'
-
-import {} from 'lodash'
-
-// Entities
-
-// Helpers
-import { userHelper } from 'src/modules/helpers'
-
-// Services
-
-// Utils
 
 export const createARoleUser = async (data, options, transaction) =>
   RoleUserEntity.create(data, { ...options, transaction })
@@ -77,60 +66,16 @@ export const createARoleUserForMutation = async (params, transaction) => {
   return createARoleUser({ role_id, user_id }, null, transaction)
 }
 
-export const updateARoleUserForMutation = async (params, transaction) => {
-  commonHelper.validateProps(
-    [
-      { field: 'entity_id', required: true, type: 'string' },
-      { field: 'data', required: true, type: 'object' }
-    ],
-    params
-  )
+export const deleteARoleUserForMutation = async (where, transaction) => {
   commonHelper.validateProps(
     [
       { field: 'role_id', required: true, type: 'string' },
       { field: 'user_id', required: true, type: 'string' }
     ],
-    params?.data
+    where
   )
 
-  const { entity_id, data } = params || {}
-  const { role_id, user_id } = data || {}
-
-  const roleUser = await roleUserHelper.getARoleUser({ where: { id: entity_id } }, transaction)
-  if (!roleUser?.id) {
-    throw new CustomError(404, 'ROLE_USER_DOES_NOT_EXIST')
-  }
-
-  if (role_id) {
-    const role = await roleHelper.getARole({ where: { id: role_id } }, transaction)
-    if (!role?.id) {
-      throw new CustomError(404, 'ROLE_DOES_NOT_EXIST')
-    }
-  }
-  if (user_id) {
-    const user = await userHelper.getAUser({ where: { id: user_id } }, transaction)
-    if (!user?.id) {
-      throw new CustomError(404, 'USER_DOES_NOT_EXIST')
-    }
-  }
-
-  const existingRoleUser = await roleUserHelper.getARoleUser(
-    { where: { role_id: role_id || roleUser?.role_id, user_id: user_id || roleUser?.user_id } },
-    transaction
-  )
-  if (existingRoleUser?.id) {
-    throw new CustomError(400, 'ROLE_USER_ALREADY_EXISTS')
-  }
-
-  await roleUser.update(params?.data, { transaction })
-
-  return roleUser
-}
-
-export const deleteARoleUserForMutation = async (params, transaction) => {
-  commonHelper.validateProps([{ field: 'entity_id', required: true, type: 'string' }], params)
-
-  return deleteARoleUser({ where: { id: params?.entity_id } }, transaction)
+  return deleteARoleUser({ where }, transaction)
 }
 
 export const assignARoleToUserByName = async (params, transaction) => {

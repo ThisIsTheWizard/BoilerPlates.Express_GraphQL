@@ -5,9 +5,6 @@ export default {
   assignRole: async (parent, args) =>
     await useTransaction(async (transaction) => roleUserService.createARoleUserForMutation(args?.input, transaction)),
 
-  updateRoleUser: async (parent, args) =>
-    await useTransaction(async (transaction) => roleUserService.updateARoleUserForMutation(args?.input, transaction)),
-
-  removeRole: async (parent, args) =>
-    await useTransaction(async (transaction) => roleUserService.deleteARoleUserForMutation(args, transaction))
+  revokeRole: async (parent, args) =>
+    await useTransaction(async (transaction) => roleUserService.deleteARoleUserForMutation(args?.input, transaction))
 }

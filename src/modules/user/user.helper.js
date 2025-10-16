@@ -32,11 +32,13 @@ export const prepareGetUsersQuery = (params) => {
   return query
 }
 
+export const getUserAssociation = () => [{ association: 'roles' }]
+
 export const getAUserForQuery = async (query) => {
   commonHelper.validateRequiredProps(['entity_id'], query)
 
   const user = await getAUser({
-    attributes: ['id', 'email', 'first_name', 'last_name', 'status'],
+    include: getUserAssociation(),
     where: { id: query.entity_id }
   })
   if (!user?.id) {
@@ -51,7 +53,7 @@ export const getUsersForQuery = async (params) => {
 
   const where = prepareGetUsersQuery(query)
   const data = await getUsers({
-    attributes: ['id', 'email', 'first_name', 'last_name', 'status'],
+    include: getUserAssociation(),
     limit,
     offset,
     order,
@@ -73,12 +75,7 @@ export const getAuthUserWithRolesAndPermissions = async ({ roles, user_id }) => 
     include: [
       {
         association: 'roles',
-        include: [
-          {
-            association: 'permissions',
-            through: { attributes: ['can_do_the_action'] }
-          }
-        ],
+        include: [{ association: 'permissions' }],
         where: { name: { [Op.in]: roles || [] } }
       }
     ],
@@ -96,7 +93,7 @@ export const getAuthUserWithRolesAndPermissions = async ({ roles, user_id }) => 
 
   const userPermissions = []
   for (const permission of find(result?.roles, (role) => role?.name === result.role)?.permissions || []) {
-    if (permission?.role_permissions?.can_do_the_action) {
+    if (permission?.id) {
       userPermissions.push(`${permission.module}.${permission.action}`)
     }
   }

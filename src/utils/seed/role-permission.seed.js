@@ -6,12 +6,13 @@ export const seedRolePermissions = async () => {
 
   const rolePermissions = []
   for (const role of roles) {
-    for (const permission of permissions) {
-      rolePermissions.push({
-        can_do_the_action: ['admin', 'developer'].includes(role?.name),
-        role_id: role.id,
-        permission_id: permission.id
-      })
+    if (['admin', 'developer'].includes(role?.name)) {
+      for (const permission of permissions) {
+        rolePermissions.push({
+          permission_id: permission.id,
+          role_id: role.id
+        })
+      }
     }
   }
 

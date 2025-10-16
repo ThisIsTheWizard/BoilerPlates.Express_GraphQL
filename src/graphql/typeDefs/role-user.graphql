@@ -6,14 +6,9 @@ type RoleUser {
   updated_at: String
 }
 
-input CreateRoleUserInput {
+input RoleUserInput {
   role_id: String!
   user_id: String!
-}
-
-input UpdateRoleUserInput {
-  entity_id: ID!
-  data: CreateRoleUserInput
 }
 
 input RoleUserQuery {
@@ -32,7 +27,6 @@ extend type Query {
 }
 
 extend type Mutation {
-  assignRole(input: CreateRoleUserInput!): RoleUser @auth(roles: ["admin", "developer"])
-  updateRoleUser(input: UpdateRoleUserInput!): RoleUser @auth(roles: ["admin", "developer"])
-  removeRole(entity_id: ID!): RoleUser @auth(roles: ["admin", "developer"])
+  assignRole(input: RoleUserInput!): RoleUser @auth(roles: ["admin", "developer"])
+  revokeRole(input: RoleUserInput!): RoleUser @auth(roles: ["admin", "developer"])
 }

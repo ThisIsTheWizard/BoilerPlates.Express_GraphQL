@@ -1,10 +1,11 @@
 type Role {
   id: ID
-  name: String
-  description: String
-  permissions: [Permission]
   created_at: String
+  description: String
+  name: String
+  permissions: [Permission]
   updated_at: String
+  users: [User]
 }
 
 input CreateRoleInput {
