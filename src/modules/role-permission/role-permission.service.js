@@ -13,17 +13,6 @@ export const createARolePermission = async (data, options, transaction) =>
 export const createRolePermissions = async (data, options, transaction) =>
   RolePermissionEntity.bulkCreate(data, { ...options, transaction })
 
-export const updateARolePermission = async (options, data, transaction) => {
-  const rolePermission = await rolePermissionHelper.getARolePermission(options, transaction)
-  if (!rolePermission?.id) {
-    throw new CustomError(404, 'ROLE_PERMISSION_NOT_FOUND')
-  }
-
-  await rolePermission.update(data, { transaction })
-
-  return rolePermission
-}
-
 export const deleteARolePermission = async (options, transaction) => {
   const rolePermission = await rolePermissionHelper.getARolePermission(options, transaction)
   if (!rolePermission?.id) {

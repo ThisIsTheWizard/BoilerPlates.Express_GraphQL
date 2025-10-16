@@ -20,7 +20,9 @@ const findRoleByName = async (name, headers) => {
 
 describe('Role-User Query Tests', () => {
   let authHeaders
+  let roleId
   let roleUserId
+  let userId
 
   before(async () => {
     const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
@@ -47,6 +49,7 @@ describe('Role-User Query Tests', () => {
       }
     })
     const user = registerResponse.data.data.register
+    userId = user.id
 
     let role = await findRoleByName('moderator', authHeaders)
     if (!role?.id) {
@@ -68,8 +71,9 @@ describe('Role-User Query Tests', () => {
       )
       role = response.data.data.createRole
     }
+    roleId = role.id
     const assignMutation = `
-      mutation AssignRole($input: CreateRoleUserInput!) {
+      mutation AssignRole($input: RoleUserInput!) {
         assignRole(input: $input) {
           id
           role_id
@@ -92,8 +96,8 @@ describe('Role-User Query Tests', () => {
     if (roleUserId) {
       try {
         const mutation = `
-          mutation RevokeRole($entity_id: ID!) {
-            revokeRole(entity_id: $entity_id) {
+           mutation RevokeRole($input: RoleUserInput!) {
+            revokeRole(input: $input) {
               id
             }
           }
@@ -102,7 +106,7 @@ describe('Role-User Query Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { entity_id: roleUserId }
+            variables: { input: { role_id: roleId, user_id: userId } }
           },
           authHeaders
         )

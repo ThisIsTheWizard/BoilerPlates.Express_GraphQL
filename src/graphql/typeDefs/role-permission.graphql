@@ -6,17 +6,7 @@ type RolePermission {
   updated_at: String
 }
 
-input CreateRolePermissionInput {
-  permission_id: String!
-  role_id: String!
-}
-
-input UpdateRolePermissionInput {
-  data: CreateRolePermissionInput
-  entity_id: ID!
-}
-
-input RemoveRolePermissionInput {
+input RolePermissionInput {
   permission_id: String!
   role_id: String!
 }
@@ -38,6 +28,6 @@ extend type Query {
 }
 
 extend type Mutation {
-  assignPermission(input: CreateRolePermissionInput!): RolePermission @auth(roles: ["admin", "developer"])
-  revokePermission(input: RemoveRolePermissionInput!): RolePermission @auth(roles: ["admin", "developer"])
+  assignPermission(input: RolePermissionInput!): RolePermission @auth(roles: ["admin", "developer"])
+  revokePermission(input: RolePermissionInput!): RolePermission @auth(roles: ["admin", "developer"])
 }

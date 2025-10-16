@@ -36,6 +36,7 @@ const findPermissionByActionAndModule = async (action, module, headers) => {
 
 describe('Role-Permission Query Tests', () => {
   let authHeaders
+  let roleId
   let rolePermissionId
   let permission
   let permissionCreatedForTest = false
@@ -45,6 +46,7 @@ describe('Role-Permission Query Tests', () => {
     authHeaders = { headers: { Authorization: tokens.access_token } }
 
     const role = await findRoleByName('user', authHeaders)
+    roleId = role.id
 
     permission = await findPermissionByActionAndModule('read', 'role_permission', authHeaders)
     if (!permission) {
@@ -70,7 +72,7 @@ describe('Role-Permission Query Tests', () => {
     }
 
     const assignMutation = `
-      mutation AssignPermission($input: CreateRolePermissionInput!) {
+      mutation AssignPermission($input: RolePermissionInput!) {
         assignPermission(input: $input) {
           id
           role_id
@@ -93,8 +95,8 @@ describe('Role-Permission Query Tests', () => {
     if (rolePermissionId) {
       try {
         const mutation = `
-          mutation RevokePermission($entity_id: ID!) {
-            revokePermission(entity_id: $entity_id) {
+          mutation RevokePermission($input: RolePermissionInput!) {
+            revokePermission(input: $input) {
               id
             }
           }
@@ -103,7 +105,7 @@ describe('Role-Permission Query Tests', () => {
           '/graphql',
           {
             query: mutation,
-            variables: { entity_id: rolePermissionId }
+            variables: { input: { role_id: roleId, permission_id: permission.id } }
           },
           authHeaders
         )

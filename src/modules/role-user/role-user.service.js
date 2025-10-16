@@ -1,5 +1,3 @@
-import {} from 'lodash'
-
 // Entities
 import { RoleUserEntity } from 'src/modules/entities'
 

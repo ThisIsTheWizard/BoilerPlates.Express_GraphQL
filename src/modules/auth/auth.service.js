@@ -189,7 +189,10 @@ export const refreshTokensForUser = async (params = {}, transaction) => {
 
   const user = await userHelper.getAuthUserWithRolesAndPermissions({ roles, user_id })
 
-  return authTokenService.refreshAuthTokensForUser({ refresh_token, roles: user?.roles, user_id }, transaction)
+  return authTokenService.refreshAuthTokensForUser(
+    { refresh_token, roles: map(user?.roles, 'name'), user_id },
+    transaction
+  )
 }
 
 export const changeEmailByUser = async (params = {}, transaction) => {
