@@ -9,6 +9,8 @@
 A boilerplate setup for running an **Express.js** backend with **GraphQL** and **PostgreSQL** using Docker Compose.
 This repository provides a ready-to-use GraphQL API with Apollo Server v4 connected to a PostgreSQL database for rapid backend development.
 
+- **Live URL**: [https://admin.sheikhthewizard.world](https://admin-api.sheikhthewizard.world)
+
 ---
 
 ## 🚀 Features
