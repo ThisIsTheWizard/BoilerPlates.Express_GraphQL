@@ -22,7 +22,7 @@ app.use(
   cors({
     origin: (reqOrigin, cb) => {
       if (!reqOrigin) return cb(null, true) // same-origin / curl
-      const allowed = ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://host.docker.internal:3000']
+      const allowed = ['http://localhost:3000', process.env.WEB_URL]
       return cb(null, allowed.includes(reqOrigin))
     },
     credentials: true,
