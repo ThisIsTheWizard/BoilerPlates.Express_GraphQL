@@ -20,14 +20,22 @@ const app = express()
 // Using CORS for cross site origin issue
 app.use(
   cors({
-    origin: (reqOrigin, cb) => {
-      if (!reqOrigin) return cb(null, true) // same-origin / curl
-      return cb(
-        null,
-        reqOrigin.includes(process.env.CORS_DOMAIN) ||
-          reqOrigin.includes('localhost') ||
-          reqOrigin.includes('127.0.0.1')
-      )
+    origin: (reqOrigin, callback) => {
+      if (!reqOrigin) return callback(null, true)
+
+      const isKnowDomain = reqOrigin.includes(process.env.CORS_DOMAIN)
+      console.log('Request Origin includes CORS Domain:', isKnowDomain)
+
+      const isLocalhost = reqOrigin.includes('localhost')
+      console.log('Request Origin includes localhost:', isLocalhost)
+
+      const isLocalIP = reqOrigin.includes('127.0.0.1')
+      console.log('Request Origin includes 127.0.0.1:', isLocalIP)
+
+      const isAllowed = isKnowDomain || isLocalhost || isLocalIP
+      console.log('Is Allowed CORS Origin:', isAllowed)
+
+      return callback(null, isAllowed)
     },
     credentials: true,
     exposedHeaders: ['Authorization']
