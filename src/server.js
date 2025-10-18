@@ -22,8 +22,12 @@ app.use(
   cors({
     origin: (reqOrigin, cb) => {
       if (!reqOrigin) return cb(null, true) // same-origin / curl
-      const allowed = ['http://localhost:3000', process.env.WEB_URL]
-      return cb(null, allowed.includes(reqOrigin))
+      return cb(
+        null,
+        reqOrigin.includes(process.env.CORS_DOMAIN) ||
+          reqOrigin.includes('localhost') ||
+          reqOrigin.includes('127.0.0.1')
+      )
     },
     credentials: true,
     exposedHeaders: ['Authorization']
