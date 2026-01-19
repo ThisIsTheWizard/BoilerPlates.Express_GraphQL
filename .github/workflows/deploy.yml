@@ -1,0 +1,26 @@
+name: Deploy To Server
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Build The Application
+        run: docker build -f ./Dockerfile.Prod -t express-graphql-server:latest .
+
+      - name: 🔐 Login To Server Registry
+        run: echo "${{ secrets.SERVER_REGISTRY_PASSWORD }}" | docker login -u ${{ secrets.SERVER_REGISTRY_USERNAME }} --password-stdin ${{ secrets.SERVER_REGISTRY }}
+
+      - name: 🏷️ Tag Docker Image For Server Registry
+        run: docker tag express-graphql-server:latest ${{ secrets.SERVER_REGISTRY }}/express-graphql-server:latest
+
+      - name: 📤 Push Docker Image To Server Registry
+        run: docker push ${{ secrets.SERVER_REGISTRY }}/express-graphql-server:latest
