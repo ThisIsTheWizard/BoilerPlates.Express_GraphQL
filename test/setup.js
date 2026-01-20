@@ -2,7 +2,7 @@ import axios from 'axios'
 import { expect } from 'chai'
 
 // Seed the test database
-import { resetTestDatabase } from 'src/utils/seed'
+import { seedDatabase } from 'src/utils/seed'
 
 const graphqlApi = axios.create({
   baseURL: `http://node_server_test:${process.env.PORT || 8000}`,
@@ -30,7 +30,7 @@ const loginAndGetTokens = async ({ email, password }) => {
 let authToken = null
 before(async () => {
   try {
-    await resetTestDatabase()
+    await seedDatabase(true)
 
     const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
     authToken = tokens?.access_token

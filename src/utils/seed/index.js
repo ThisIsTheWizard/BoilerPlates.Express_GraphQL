@@ -6,10 +6,10 @@ import { seedRolePermissions } from 'src/utils/seed/role-permission.seed'
 import { seedRoles } from 'src/utils/seed/role.seed'
 import { seedTestUsers } from 'src/utils/seed/user.seed'
 
-export const resetTestDatabase = async () => {
+export const seedDatabase = async (is_reset = false) => {
   try {
-    // Recreate the database schema
-    await syncEntitiesIntoDatabase(true)
+    // Sync tables into database
+    await syncEntitiesIntoDatabase(is_reset)
 
     await seedAuthTemplates()
     await seedRoles()
