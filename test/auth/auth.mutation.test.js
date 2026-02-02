@@ -384,7 +384,7 @@ describe('Auth Mutation Tests', () => {
       `
       const response = await api.post('/graphql', {
         query: mutation,
-        variables: { input: { email: 'nonexistent@test.com' } }
+        variables: { input: { email: 'nonexistent@wizardcld.com' } }
       })
 
       expect(response.status).to.equal(200)

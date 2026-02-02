@@ -16,21 +16,21 @@ export const seedTestUsers = async () => {
         status: 'active'
       },
       {
-        email: 'developer@test.com',
+        email: 'developer@wizardcld.com',
         first_name: 'Developer',
         last_name: 'Test',
         password: hashedPassword,
         status: 'active'
       },
       {
-        email: 'moderator@test.com',
+        email: 'moderator@wizardcld.com',
         first_name: 'Moderator',
         last_name: 'Test',
         password: hashedPassword,
         status: 'active'
       },
       {
-        email: 'user@test.com',
+        email: 'user@wizardcld.com',
         first_name: 'Test',
         last_name: 'User',
         password: hashedPassword,
@@ -46,9 +46,9 @@ export const seedTestUsers = async () => {
     for (const role of roles) {
       if (
         (user.email === 'admin@wizardcld.com' && role.name === 'admin') ||
-        (user.email === 'developer@test.com' && role.name === 'developer') ||
-        (user.email === 'moderator@test.com' && role.name === 'moderator') ||
-        (user.email === 'user@test.com' && role.name === 'user')
+        (user.email === 'developer@wizardcld.com' && role.name === 'developer') ||
+        (user.email === 'moderator@wizardcld.com' && role.name === 'moderator') ||
+        (user.email === 'user@wizardcld.com' && role.name === 'user')
       ) {
         role_users.push({ role_id: role?.id, user_id: user?.id })
       }
