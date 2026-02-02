@@ -7,7 +7,7 @@ describe('User Mutation Tests', () => {
   let createdUserId
 
   before(async () => {
-    const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
+    const tokens = await loginAndGetTokens({ email: 'admin@wizardcld.com', password: '123456aA@' })
     adminHeaders = { headers: { Authorization: tokens.access_token } }
   })
 
@@ -109,7 +109,7 @@ describe('User Mutation Tests', () => {
           query: mutation,
           variables: {
             input: {
-              email: 'admin@test.com',
+              email: 'admin@wizardcld.com',
               first_name: 'Duplicate',
               last_name: 'User'
             }

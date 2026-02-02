@@ -21,7 +21,7 @@ describe('Role Mutation Tests', () => {
   let createdRole
 
   before(async () => {
-    const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
+    const tokens = await loginAndGetTokens({ email: 'admin@wizardcld.com', password: '123456aA@' })
     authHeaders = { headers: { Authorization: tokens.access_token } }
   })
 

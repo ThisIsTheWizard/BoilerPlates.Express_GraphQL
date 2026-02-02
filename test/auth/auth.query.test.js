@@ -4,7 +4,7 @@ describe('Auth Query Tests', () => {
   let adminHeaders
 
   before(async () => {
-    const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
+    const tokens = await loginAndGetTokens({ email: 'admin@wizardcld.com', password: '123456aA@' })
     adminHeaders = { headers: { Authorization: tokens.access_token } }
   })
 
@@ -24,7 +24,7 @@ describe('Auth Query Tests', () => {
       const response = await api.post('/graphql', { query }, adminHeaders)
 
       expect(response.status).to.equal(200)
-      expect(response.data.data.user.email).to.equal('admin@test.com')
+      expect(response.data.data.user.email).to.equal('admin@wizardcld.com')
     })
 
     it('returns error when token is missing', async () => {

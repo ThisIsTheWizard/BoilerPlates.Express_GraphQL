@@ -32,7 +32,7 @@ before(async () => {
   try {
     await seedDatabase(true)
 
-    const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
+    const tokens = await loginAndGetTokens({ email: 'admin@wizardcld.com', password: '123456aA@' })
     authToken = tokens?.access_token
   } catch (error) {
     console.error('Error during test setup:', error)

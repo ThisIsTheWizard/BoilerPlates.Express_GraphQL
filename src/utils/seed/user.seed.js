@@ -9,7 +9,7 @@ export const seedTestUsers = async () => {
   const users = await UserEntity.bulkCreate(
     [
       {
-        email: 'admin@test.com',
+        email: 'admin@wizardcld.com',
         first_name: 'Admin',
         last_name: 'Test',
         password: hashedPassword,
@@ -45,7 +45,7 @@ export const seedTestUsers = async () => {
   for (const user of users) {
     for (const role of roles) {
       if (
-        (user.email === 'admin@test.com' && role.name === 'admin') ||
+        (user.email === 'admin@wizardcld.com' && role.name === 'admin') ||
         (user.email === 'developer@test.com' && role.name === 'developer') ||
         (user.email === 'moderator@test.com' && role.name === 'moderator') ||
         (user.email === 'user@test.com' && role.name === 'user')

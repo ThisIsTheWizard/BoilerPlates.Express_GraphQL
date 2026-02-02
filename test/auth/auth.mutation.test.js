@@ -101,7 +101,7 @@ describe('Auth Mutation Tests', () => {
         query: mutation,
         variables: {
           input: {
-            email: 'admin@test.com',
+            email: 'admin@wizardcld.com',
             password: '123456aA@'
           }
         }
@@ -124,7 +124,7 @@ describe('Auth Mutation Tests', () => {
         query: mutation,
         variables: {
           input: {
-            email: 'admin@test.com',
+            email: 'admin@wizardcld.com',
             password: 'wrongpassword'
           }
         }
@@ -191,7 +191,7 @@ describe('Auth Mutation Tests', () => {
 
   describe('refreshToken mutation', () => {
     it('refreshes tokens successfully', async () => {
-      const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
+      const tokens = await loginAndGetTokens({ email: 'admin@wizardcld.com', password: '123456aA@' })
       const mutation = `
         mutation RefreshToken($input: RefreshTokenInput!) {
           refreshToken(input: $input) {
@@ -230,7 +230,7 @@ describe('Auth Mutation Tests', () => {
 
   describe('logout mutation', () => {
     it('logs out successfully', async () => {
-      const tokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
+      const tokens = await loginAndGetTokens({ email: 'admin@wizardcld.com', password: '123456aA@' })
       const mutation = `
         mutation Logout {
           logout {
@@ -617,7 +617,7 @@ describe('Auth Mutation Tests', () => {
     const ctx = {}
 
     before(async () => {
-      ctx.adminTokens = await loginAndGetTokens({ email: 'admin@test.com', password: '123456aA@' })
+      ctx.adminTokens = await loginAndGetTokens({ email: 'admin@wizardcld.com', password: '123456aA@' })
       const email = randomEmail('admin-target')
       const register = `
         mutation Register($input: RegisterInput!) { register(input: $input) { id email } }
