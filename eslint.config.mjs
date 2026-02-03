@@ -1,25 +1,20 @@
-import babelParser from '@babel/eslint-parser'
-import eslintJS from '@eslint/js'
+import eslint from '@eslint/js'
 import importPlugin from 'eslint-plugin-import'
 import prettierPlugin from 'eslint-plugin-prettier'
+import eslintConfigPrettier from 'eslint-config-prettier'
 import globals from 'globals'
+import tseslint from 'typescript-eslint'
 
-export default [
-  eslintJS.configs.recommended,
+export default tseslint.config(
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  eslintConfigPrettier,
   {
     languageOptions: {
       ecmaVersion: 'latest',
-      globals: globals.node,
-      parser: babelParser,
-      parserOptions: {
-        babelOptions: {
-          babelrc: false,
-          configFile: false,
-          presets: ['@babel/preset-env']
-        },
-        ecmaVersion: 'latest',
-        requireConfigFile: false,
-        sourceType: 'module'
+      globals: {
+        ...globals.node,
+        ...globals.jest
       },
       sourceType: 'module'
     },
@@ -29,36 +24,29 @@ export default [
     },
     rules: {
       'arrow-body-style': ['error', 'as-needed'],
-      'import/extensions': ['error', 'never'],
+      'import/extensions': ['error', 'never', { js: 'never' }],
       'import/named': 'error',
       'import/no-relative-packages': 'error',
-      'import/no-unresolved': ['error', { commonjs: false, amd: false }],
-      indent: ['error', 2, { SwitchCase: 1 }],
-      'linebreak-style': ['error', 'unix'],
       'no-prototype-builtins': 'off',
-      'no-undef': 'error',
       'no-underscore-dangle': 'off',
       'no-unneeded-ternary': 'off',
-      'no-unused-vars': 'error',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'error',
       'object-shorthand': 'error',
       'one-var': ['error', { const: 'never' }],
       'prefer-const': 'error',
       'prettier/prettier': ['error'],
-      quotes: ['error', 'single', { avoidEscape: true }],
-      semi: ['error', 'never'],
-      'max-params': ['error', 3]
+      'max-params': ['error', 4],
+      '@typescript-eslint/interface-name-prefix': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-explicit-any': 'error'
     },
     settings: {
       'import/resolver': {
-        'babel-module': {
-          alias: {
-            src: './src' // Match the alias as per Babel config
-          }
-        },
-        node: {
-          extensions: ['.js'] // Resolve .js files in node_modules
-        }
+        node: { extensions: ['.js', '.ts'] }
       }
     }
-  }
-]
+  },
+  { ignores: ['dist', 'build', 'test/**/*.js'] }
+)
