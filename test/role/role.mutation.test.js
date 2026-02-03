@@ -183,7 +183,9 @@ describe('Role Mutation Tests', () => {
         '/graphql',
         {
           query: mutation,
-          variables: { input: { entity_id: createdRole.id, data: { name: 'moderator', description: 'Updated moderator role' } } }
+          variables: {
+            input: { entity_id: createdRole.id, data: { name: 'moderator', description: 'Updated moderator role' } }
+          }
         },
         authHeaders
       )
