@@ -3,7 +3,8 @@ services:
     image: postgres:17
     container_name: postgres_test_container
     env_file:
-      - .env.test
+      - path: .env.test
+        required: false
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 5s
@@ -23,7 +24,8 @@ services:
       postgres_test:
         condition: service_healthy
     env_file:
-      - .env.test
+      - path: .env.test
+        required: false
     ports:
       - '8000:8000'
     healthcheck:
@@ -44,7 +46,8 @@ services:
     container_name: test_runner_container
     restart: 'no'
     env_file:
-      - .env.test
+      - path: .env.test
+        required: false
     environment:
       - DOCKER_TEST=true
     command: ['pnpm', 'mocha']

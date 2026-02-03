@@ -22,7 +22,7 @@ export default [
     },
     rules: {
       'arrow-body-style': ['error', 'as-needed'],
-      'import/extensions': ['error', 'never', { js: 'never' }],
+      'import/extensions': 'off',
       'import/named': 'error',
       'import/no-relative-packages': 'error',
       'no-prototype-builtins': 'off',
