@@ -12,8 +12,6 @@ RUN pnpm i
 
 COPY . .
 
-COPY .env.test .env
-
 RUN pnpm run lint
 
 RUN pnpm run build
