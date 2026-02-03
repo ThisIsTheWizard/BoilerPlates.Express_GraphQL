@@ -3,11 +3,9 @@ import importPlugin from 'eslint-plugin-import'
 import prettierPlugin from 'eslint-plugin-prettier'
 import eslintConfigPrettier from 'eslint-config-prettier'
 import globals from 'globals'
-import tseslint from 'typescript-eslint'
 
-export default tseslint.config(
+export default [
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
   eslintConfigPrettier,
   {
     languageOptions: {
@@ -30,23 +28,18 @@ export default tseslint.config(
       'no-prototype-builtins': 'off',
       'no-underscore-dangle': 'off',
       'no-unneeded-ternary': 'off',
-      'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': 'error',
+      'no-unused-vars': 'error',
       'object-shorthand': 'error',
       'one-var': ['error', { const: 'never' }],
       'prefer-const': 'error',
       'prettier/prettier': ['error'],
-      'max-params': ['error', 4],
-      '@typescript-eslint/interface-name-prefix': 'off',
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-explicit-any': 'error'
+      'max-params': ['error', 4]
     },
     settings: {
       'import/resolver': {
-        node: { extensions: ['.js', '.ts'] }
+        node: { extensions: ['.js'] }
       }
     }
   },
   { ignores: ['dist', 'build', 'test/**/*.js'] }
-)
+]
